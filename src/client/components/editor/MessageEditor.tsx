@@ -193,7 +193,7 @@ export function MessageEditor({
       {/* Drag handle */}
       <div
         className={`absolute top-[7px] -left-[1px] opacity-0 transition-opacity ${
-          !isReadonly ? "group-hover:opacity-100" : "pointer-events-none"
+          !isReadonly ? "max-md:opacity-100 md:group-hover:opacity-100" : "pointer-events-none"
         }`}
       >
         <DragHandle />
@@ -251,7 +251,7 @@ export function MessageEditor({
         <div className="flex shrink-0 items-center gap-1.5 pl-2">
           {/* Hover-reveal actions */}
           <div className={`flex items-center gap-1.5 transition-opacity ${
-            isReadonly ? "pointer-events-none opacity-0" : "opacity-0 group-hover:opacity-100"
+            isReadonly ? "pointer-events-none opacity-0" : "max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
           }`}>
             {/* Add image */}
             <button
@@ -297,7 +297,7 @@ export function MessageEditor({
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? "Expand this message" : "Collapse this message"}
             className={`flex size-5 items-center justify-center rounded-sm text-text-desc transition-all hover:bg-bg-4 hover:text-text-secondary ${
-              collapsed ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              collapsed ? "opacity-100" : "max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
             }`}
           >
             <svg

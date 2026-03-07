@@ -18,7 +18,7 @@ export function MessageList({
   const { addMessage, insertMessageBefore, streamingMessageId } = useStore(store);
 
   return (
-    <div className="flex-1 px-4 py-3">
+    <div className="min-w-0 flex-1 px-4 py-3">
       {/* Section label */}
       <div className="mb-2 flex items-center gap-2">
         <span className="font-serif text-[11px] italic text-text-desc">
@@ -30,9 +30,9 @@ export function MessageList({
       </div>
 
       {/* Message cards with insertion lines */}
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-3">
         {messages.map((msg, index) => (
-          <div key={msg.id} className="flex flex-col">
+          <div key={msg.id} className="relative">
             {/* Insertion line before each message */}
             {!isReadonly && !isStreaming && (
               <InsertionLine
@@ -70,8 +70,8 @@ export function MessageList({
 
 function InsertionLine({ onInsertBefore }: { onInsertBefore: () => void }) {
   return (
-    <div className="relative h-3 w-full opacity-0 transition-opacity hover:opacity-100">
-      <div className="absolute -top-1.5 right-0 -bottom-1.5 left-0 flex items-center">
+    <div className="absolute -top-3 left-0 z-10 h-3 w-full opacity-0 transition-opacity hover:opacity-100">
+      <div className="absolute inset-0 flex items-center">
         <div className="h-px w-full border-t border-dashed border-border" />
         <button
           onClick={onInsertBefore}

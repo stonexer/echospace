@@ -37,6 +37,7 @@ export interface ThreadState {
   currentEventId: string | null;
   peekingEventId: string | null;
   cachedState: CachedState | null;
+  isReadonly: boolean;
 }
 
 export interface ThreadActions {
@@ -92,6 +93,7 @@ export function createThreadStore() {
     currentEventId: null,
     peekingEventId: null,
     cachedState: null,
+    isReadonly: false,
 
     // --- File I/O ---
 
@@ -177,6 +179,7 @@ export function createThreadStore() {
     // --- Messages ---
 
     addMessage(role: EchoRole, text = "") {
+      if (get().peekingEventId) return;
       const msg: EchoMessage = {
         kind: "message",
         id: nanoid(8),
@@ -192,6 +195,7 @@ export function createThreadStore() {
     },
 
     insertMessageBefore(beforeId: string, role: EchoRole, text = "") {
+      if (get().peekingEventId) return;
       const msg: EchoMessage = {
         kind: "message",
         id: nanoid(8),
@@ -210,6 +214,7 @@ export function createThreadStore() {
     },
 
     addToolResultMessage(afterMessageId: string, toolCallId: string, toolName: string) {
+      if (get().peekingEventId) return;
       const msg: EchoMessage = {
         kind: "message",
         id: nanoid(8),
@@ -227,6 +232,7 @@ export function createThreadStore() {
     },
 
     addImageToMessage(messageId: string, base64: string, mediaType: string) {
+      if (get().peekingEventId) return;
       set((s) => ({
         messages: s.messages.map((m) =>
           m.id === messageId
@@ -238,16 +244,17 @@ export function createThreadStore() {
     },
 
     updateMessage(id: string, parts: EchoPart[]) {
+      if (get().peekingEventId) return;
       set((s) => ({
         messages: s.messages.map((m) =>
           m.id === id ? { ...m, parts } : m,
         ),
         isDirty: true,
       }));
-      // Debounced history append would go here
     },
 
     updateMessageRole(id: string, role: EchoRole) {
+      if (get().peekingEventId) return;
       set((s) => ({
         messages: s.messages.map((m) =>
           m.id === id ? { ...m, role } : m,
@@ -257,6 +264,7 @@ export function createThreadStore() {
     },
 
     removeMessage(id: string) {
+      if (get().peekingEventId) return;
       set((s) => ({
         messages: s.messages.filter((m) => m.id !== id),
         isDirty: true,
@@ -265,6 +273,7 @@ export function createThreadStore() {
     },
 
     reorderMessages(fromIndex: number, toIndex: number) {
+      if (get().peekingEventId) return;
       set((s) => {
         const msgs = [...s.messages];
         const [moved] = msgs.splice(fromIndex, 1);
@@ -274,6 +283,7 @@ export function createThreadStore() {
     },
 
     importMessages(messages: EchoMessage[]) {
+      if (get().peekingEventId) return;
       set((s) => ({
         messages: [...s.messages, ...messages],
         isDirty: true,
@@ -284,6 +294,7 @@ export function createThreadStore() {
     // --- Settings ---
 
     updateSettings(updates: Partial<EchoSettings>) {
+      if (get().peekingEventId) return;
       set((s) => ({
         settings: { ...s.settings, ...updates },
         isDirty: true,
@@ -447,6 +458,7 @@ export function createThreadStore() {
       // Cache current state
       set({
         peekingEventId: id,
+        isReadonly: true,
         cachedState: { messages: [...messages], settings: { ...settings } },
       });
 
@@ -471,24 +483,18 @@ export function createThreadStore() {
         settings: cachedState.settings,
         peekingEventId: null,
         cachedState: null,
+        isReadonly: false,
       });
     },
 
     revertToEvent(id: string) {
-      const { historyEvents } = get();
+      const { historyEvents, cachedState, messages } = get();
       const event = historyEvents.find((e) => e.id === id);
       if (!event) return;
 
-      // If peeking, clear peek state
-      set({
-        peekingEventId: null,
-        cachedState: null,
-        currentEventId: id,
-        isDirty: true,
-      });
-
-      // The messages are already set from peek, or we need to resolve them
-      const allMessages = get().cachedState?.messages ?? get().messages;
+      // Resolve messages from the source that has all messages
+      // (cachedState holds the original messages if we're currently peeking)
+      const allMessages = cachedState?.messages ?? messages;
       const snapshotMessages = event.snapshot.message_ids
         .map((mid) => allMessages.find((m) => m.id === mid))
         .filter((m): m is EchoMessage => m != null);
@@ -496,14 +502,50 @@ export function createThreadStore() {
       set({
         messages: snapshotMessages,
         settings: event.snapshot.settings ?? get().settings,
+        currentEventId: id,
+        peekingEventId: null,
+        cachedState: null,
+        isReadonly: false,
+        isDirty: true,
       });
-
-      get().appendHistoryEvent("revision", `reverted to ${id}`);
     },
 
     appendHistoryEvent(type: "revision" | "run", summary?: string) {
-      const { messages, settings, currentEventId, filePath } = get();
+      const { messages, settings, currentEventId, historyEvents, filePath } = get();
+      const lastEvent = historyEvents[historyEvents.length - 1];
 
+      // If we're on the latest revision event and this is also a revision,
+      // update in place instead of creating a new event
+      if (
+        lastEvent &&
+        lastEvent.id === currentEventId &&
+        lastEvent.type === "revision" &&
+        type === "revision"
+      ) {
+        const updated: EchoHistoryEvent = {
+          ...lastEvent,
+          snapshot: {
+            message_ids: messages.map((m) => m.id),
+            settings,
+          },
+          summary: summary ?? lastEvent.summary,
+        };
+        set((s) => ({
+          historyEvents: [...s.historyEvents.slice(0, -1), updated],
+        }));
+        // Persist update
+        if (filePath) {
+          const filename = filePath.split("/").pop() ?? filePath;
+          fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updated),
+          }).catch(() => {});
+        }
+        return;
+      }
+
+      // Otherwise create a new event (branching from historical point, or after a run)
       const event: EchoHistoryEvent = {
         kind: "event",
         id: nanoid(8),
@@ -529,9 +571,7 @@ export function createThreadStore() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(event),
-        }).catch(() => {
-          // Ignore persistence errors
-        });
+        }).catch(() => {});
       }
     },
   }));

@@ -75,7 +75,7 @@ export function ThreadEditor() {
               <span className="shrink-0 font-serif text-[11px] italic text-text-desc">
                 Timeline
               </span>
-              <div ref={timelineRef} className="flex min-w-0 flex-1 items-center gap-[3px] overflow-x-auto scrollbar-none">
+              <div ref={timelineRef} className="flex min-w-0 flex-1 flex-wrap items-center gap-[3px]">
                 {historyEvents.map((event) => {
                   const isCurrent = event.id === currentEventId;
                   const isPeeking = event.id === peekingEventId;
@@ -161,7 +161,7 @@ export function ThreadEditor() {
         <PanelResizeHandle className="w-px bg-border transition-colors hover:bg-primary/40 active:bg-primary/60" />
 
         <Panel defaultSize={58} minSize={35}>
-          <div className="flex h-full flex-col overflow-y-auto bg-bg-1-1">
+          <div className="flex h-full flex-col overflow-y-auto overflow-x-hidden bg-bg-1-1">
             <MessageList
               messages={chatMessages}
               isReadonly={isReadonly}
