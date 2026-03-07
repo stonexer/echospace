@@ -1,7 +1,7 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { useThreadStore } from "../../lib/store-context";
-import type { EchoMessage, EchoRole } from "~/core/echo/types";
+import type { EchoMessage, EchoRole, ToolCallPart } from "~/core/echo/types";
 
 interface MessageEditorProps {
   message: EchoMessage;
@@ -78,7 +78,7 @@ export function MessageEditor({
       const m = allMessages[i];
       if (m.role === "assistant") {
         const prevToolCallIds = new Set(
-          m.parts.filter((p) => p.type === "tool_call" && p.id).map((p) => p.id)
+          m.parts.filter((p): p is ToolCallPart => p.type === "tool_call" && !!p.id).map((p) => p.id)
         );
         return toolResults.every((tr) => prevToolCallIds.has(tr.id));
       }
