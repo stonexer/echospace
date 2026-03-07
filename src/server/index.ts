@@ -1,0 +1,49 @@
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { chatRoutes } from "./routes/chat";
+import { fileRoutes } from "./routes/files";
+import { configRoutes } from "./routes/config";
+
+export function createServer(options: {
+  workspaceDir: string;
+  configDir: string;
+}) {
+  const app = new Hono();
+
+  // Middleware
+  app.use("*", logger());
+  app.use("*", cors());
+
+  // API routes
+  app.route("/api/files", fileRoutes(options));
+  app.route("/api/chat", chatRoutes(options));
+  app.route("/api/config", configRoutes(options));
+
+  // Static files (Vite build output)
+  app.use("/*", serveStatic({ root: "./dist/client" }));
+
+  // SPA fallback
+  app.get("*", serveStatic({ root: "./dist/client", path: "index.html" }));
+
+  return app;
+}
+
+export function startServer(options: {
+  port: number;
+  workspaceDir: string;
+  configDir: string;
+}) {
+  const app = createServer(options);
+
+  serve(
+    { fetch: app.fetch, port: options.port },
+    (info) => {
+      console.log(`Echo Space running at http://localhost:${info.port}`);
+    },
+  );
+
+  return app;
+}

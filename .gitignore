@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+*.db
+.vite
+.DS_Store
+.references
+.echo
+.claude/
