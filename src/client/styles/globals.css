@@ -1,6 +1,47 @@
 @import "tailwindcss";
 @source not "../../../.referrences";
 
+/* Geist Sans — variable weight */
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist";
+  src: url("./fonts/Geist-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Geist Mono — variable weight */
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("./fonts/GeistMono-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Geist Pixel Square — decorative labels */
+@font-face {
+  font-family: "Geist Pixel Square";
+  src: url("./fonts/GeistPixel-Square.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   /* === EchoSpace — Analog Workshop === */
 
@@ -43,11 +84,11 @@
   --shadow-focus: var(--shadow-focus-value);
 
   /* Typography */
-  --font-serif: "Libre Baskerville", Georgia, "Times New Roman", serif;
-  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "PingFang SC",
+  --font-serif: "Geist Pixel Square", ui-monospace, monospace;
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "PingFang SC",
     "Hiragino Sans GB", "noto sans", "Microsoft YaHei", "Helvetica Neue",
     Helvetica, Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
@@ -315,5 +356,4 @@ textarea:focus {
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--text-desc);
-  font-style: italic;
 }

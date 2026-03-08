@@ -77,7 +77,7 @@ export function ThreadEditor() {
       <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         {/* Timeline dots */}
         <div className="flex min-w-0 items-center gap-2">
-          <span className="shrink-0 font-serif text-[11px] italic text-text-desc">
+          <span className="shrink-0 font-serif text-[11px] text-text-desc">
             Timeline
           </span>
           <div

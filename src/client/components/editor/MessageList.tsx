@@ -42,10 +42,10 @@ export function MessageList({
     <div className="min-w-0 flex-1 px-4 py-3">
       {/* Section label */}
       <div className="mb-2 flex items-center gap-2">
-        <span className="font-serif text-[11px] italic text-text-desc">
+        <span className="font-serif text-[11px] text-text-desc">
           Messages
         </span>
-        <span className="text-[11px] text-text-placeholder">
+        <span className="font-mono text-[11px] text-text-placeholder">
           {messages.length}
         </span>
       </div>

@@ -22,7 +22,7 @@ export function StatusBar() {
           </span>
         )}
         {activeFile && (
-          <span>
+          <span className="font-mono">
             {messageCount} message{messageCount !== 1 ? "s" : ""}
           </span>
         )}

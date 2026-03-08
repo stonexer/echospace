@@ -322,7 +322,7 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
       {/* === System Prompt === */}
       <div className="flex min-h-0 flex-1 flex-col pt-2.5 pb-3">
         <div className="mb-2 flex items-center justify-between">
-          <span className="font-serif text-[11px] italic text-text-desc">
+          <span className="font-serif text-[11px] text-text-desc">
             System prompt
           </span>
           <span className="font-mono text-[10px] text-text-placeholder">
@@ -356,7 +356,7 @@ function Section({
   return (
     <div className="border-b border-border py-2.5">
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="font-serif text-[11px] italic text-text-desc">
+        <span className="font-serif text-[11px] text-text-desc">
           {title}
         </span>
         {extra}

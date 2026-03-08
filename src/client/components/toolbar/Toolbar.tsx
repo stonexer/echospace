@@ -68,7 +68,7 @@ export function Toolbar() {
           onChange={(e) =>
             updateSettings({ temperature: parseFloat(e.target.value) })
           }
-          className="h-6 w-12 rounded-sm border border-border bg-bg-2 px-1.5 text-center text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
+          className="h-6 w-12 rounded-sm border border-border bg-bg-2 px-1.5 text-center font-mono text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
         />
       </div>
 
@@ -83,7 +83,7 @@ export function Toolbar() {
           onChange={(e) =>
             updateSettings({ max_tokens: parseInt(e.target.value, 10) })
           }
-          className="h-6 w-16 rounded-sm border border-border bg-bg-2 px-1.5 text-center text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
+          className="h-6 w-16 rounded-sm border border-border bg-bg-2 px-1.5 text-center font-mono text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
         />
       </div>
 

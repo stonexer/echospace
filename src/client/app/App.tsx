@@ -248,7 +248,7 @@ export function App() {
                   <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="#F2E2C1" />
                 </g>
               </svg>
-              <div className="mt-2.5 font-serif text-[18px] italic text-text-secondary">
+              <div className="mt-2.5 font-serif text-[18px] text-text-secondary">
                 EchoSpace
               </div>
               <div className="mt-1.5 text-[13px] text-text-desc">
@@ -360,7 +360,7 @@ export function App() {
               border: '1px solid var(--border-1)',
               color: 'var(--text-normal)',
               fontSize: '12.5px',
-              fontFamily: 'DM Sans, sans-serif'
+              fontFamily: 'Geist, sans-serif'
             }
           }}
         />

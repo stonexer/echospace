@@ -57,7 +57,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
       className="absolute right-0 bottom-full mb-1 w-56 rounded border border-border bg-bg-1 shadow-panel"
     >
       <div className="border-b border-border px-3 py-2">
-        <span className="font-serif text-[11px] italic text-text-desc">
+        <span className="font-serif text-[11px] text-text-desc">
           Settings
         </span>
       </div>

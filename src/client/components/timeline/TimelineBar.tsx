@@ -18,7 +18,7 @@ export function TimelineBar({
 
   return (
     <div className="flex items-center gap-2 border-t border-border bg-bg-1 px-4 py-1.5">
-      <span className="shrink-0 font-serif text-[11px] italic text-text-desc">
+      <span className="shrink-0 font-serif text-[11px] text-text-desc">
         Timeline
       </span>
 
