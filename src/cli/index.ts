@@ -62,13 +62,28 @@ program
       ? parseInt(options.port, 10)
       : await getPort({ port: portNumbers(3240, 3249) });
 
+    const url = `http://localhost:${port}`;
+    const lines = [
+      `EchoSpace v${VERSION}`,
+      `Workspace: ${workspaceDir}`,
+      `URL:       ${url}`,
+    ];
+    const w = Math.max(...lines.map((l) => l.length)) + 4;
+    const top = `  ╔${"═".repeat(w)}╗`;
+    const mid = `  ╠${"═".repeat(w)}╣`;
+    const bot = `  ╚${"═".repeat(w)}╝`;
+    const pad = (s: string) => `  ║  ${s.padEnd(w - 2)}║`;
+    const center = (s: string) => {
+      const left = Math.floor((w - s.length) / 2);
+      return `  ║${" ".repeat(left)}${s}${" ".repeat(w - left - s.length)}║`;
+    };
     console.log(`
-  ╔══════════════════════════════════════╗
-  ║           EchoSpace v${VERSION.padEnd(12)}║
-  ╠══════════════════════════════════════╣
-  ║  Workspace: ${workspaceDir.padEnd(24)}║
-  ║  URL:       http://localhost:${String(port).padEnd(8)}║
-  ╚══════════════════════════════════════╝
+${top}
+${center(lines[0])}
+${mid}
+${pad(lines[1])}
+${pad(lines[2])}
+${bot}
 `);
 
     const isDev = process.env.NODE_ENV !== "production" && import.meta.url.includes("/src/");
