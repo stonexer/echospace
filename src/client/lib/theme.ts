@@ -1,10 +1,11 @@
-export type Theme = 'retro' | 'dusk';
+export type Theme = 'retro' | 'dusk' | 'ember' | 'slate';
 
 const STORAGE_KEY = 'echospace-theme';
+const VALID_THEMES: Theme[] = ['retro', 'dusk', 'ember', 'slate'];
 
 export function getTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored === 'dusk' ? 'dusk' : 'retro';
+  const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+  return stored && VALID_THEMES.includes(stored) ? stored : 'retro';
 }
 
 export function setTheme(theme: Theme): void {
@@ -13,10 +14,10 @@ export function setTheme(theme: Theme): void {
 }
 
 function applyTheme(theme: Theme): void {
-  if (theme === 'dusk') {
-    document.documentElement.dataset.theme = 'dusk';
-  } else {
+  if (theme === 'retro') {
     delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = theme;
   }
 }
 

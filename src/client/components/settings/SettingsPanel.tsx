@@ -48,27 +48,25 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-placeholder">
           Theme
         </div>
-        <div className="flex gap-1">
-          <button
-            onClick={() => handleThemeChange("retro")}
-            className={`flex-1 rounded px-2 py-1 text-[12px] font-medium transition-colors ${
-              currentTheme === "retro"
-                ? "bg-primary/15 text-primary"
-                : "bg-bg-2 text-text-desc hover:text-text-secondary"
-            }`}
-          >
-            Retro Light
-          </button>
-          <button
-            onClick={() => handleThemeChange("dusk")}
-            className={`flex-1 rounded px-2 py-1 text-[12px] font-medium transition-colors ${
-              currentTheme === "dusk"
-                ? "bg-primary/15 text-primary"
-                : "bg-bg-2 text-text-desc hover:text-text-secondary"
-            }`}
-          >
-            Dusk Warmer
-          </button>
+        <div className="grid grid-cols-2 gap-1">
+          {([
+            ["retro", "Retro Light"],
+            ["dusk", "Dusk Warmer"],
+            ["ember", "Ember Dark"],
+            ["slate", "Slate Dark"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => handleThemeChange(key)}
+              className={`rounded px-2 py-1 text-[12px] font-medium transition-colors ${
+                currentTheme === key
+                  ? "bg-primary/15 text-primary"
+                  : "bg-bg-2 text-text-desc hover:text-text-secondary"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
       <div className="px-3 py-2">

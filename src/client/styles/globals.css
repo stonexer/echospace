@@ -151,6 +151,106 @@
   --shadow-streaming: rgba(106, 127, 168, 0.08);
 }
 
+/* === Ember Dark Theme === */
+[data-theme="ember"] {
+  --bg-1: #1a1815; /* Deep charcoal */
+  --bg-1-1: #222019; /* Warm dark */
+  --bg-1-2: #2a2722; /* Warm hover */
+  --bg-2: #2e2b26; /* Warm panel */
+  --bg-3: #3a352e; /* Warm tertiary */
+  --bg-4: #454037; /* Warm muted */
+  --bg-5: #544e44; /* Warm accent */
+
+  --text-emphasize: #f5e1c0; /* Warm cream */
+  --text-normal: #dcd2bc; /* Warm parchment */
+  --text-secondary: #b8ab94; /* Warm gray */
+  --text-desc: #8a7e6a; /* Faded warm */
+  --text-placeholder: #665c4d; /* Dim warm */
+  --text-disable: #4d453a; /* Deep dim */
+
+  --border-1: #3a352e; /* Warm edge */
+
+  --primary: #c4784a; /* Bright cognac */
+  --primary-light: rgba(196, 120, 74, 0.12);
+
+  --danger: #b04a3a; /* Brick red */
+  --danger-light: rgba(176, 74, 58, 0.12);
+
+  --success: #5a7e45; /* Olive green */
+  --success-light: rgba(90, 126, 69, 0.12);
+
+  /* Role badge colors */
+  --role-system-bg: rgba(130, 100, 160, 0.15);
+  --role-system-text: #a088c0;
+  --role-user-bg: rgba(196, 120, 74, 0.20);
+  --role-user-text: #c4784a;
+  --role-assistant-bg: rgba(90, 126, 69, 0.15);
+  --role-assistant-text: #7eaa62;
+  --role-tool-bg: rgba(178, 130, 50, 0.15);
+  --role-tool-text: #d4a017;
+
+  /* Selection & focus */
+  --selection-color: rgba(196, 120, 74, 0.25);
+
+  /* Shadows — deep warm */
+  --shadow-card-value: 0 1px 4px 0 rgba(0, 0, 0, 0.5),
+    0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-panel-value: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
+  --shadow-modal-value: 0 8px 24px 0 rgba(0, 0, 0, 0.5);
+  --shadow-focus-value: 0 0 0 3px rgba(196, 120, 74, 0.2);
+  --shadow-streaming: rgba(196, 120, 74, 0.1);
+}
+
+/* === Slate Dark Theme === */
+[data-theme="slate"] {
+  --bg-1: #191c21; /* Deep slate */
+  --bg-1-1: #1e2128; /* Cool dark */
+  --bg-1-2: #262a32; /* Cool hover */
+  --bg-2: #2d323d; /* Cool panel */
+  --bg-3: #363c4a; /* Cool tertiary */
+  --bg-4: #414858; /* Cool muted */
+  --bg-5: #4d5568; /* Cool accent */
+
+  --text-emphasize: #f1f3f5; /* Cool white */
+  --text-normal: #e4e7eb; /* Silver */
+  --text-secondary: #a0a5ae; /* Cool gray */
+  --text-desc: #747a85; /* Muted cool */
+  --text-placeholder: #5c6370; /* Dim cool */
+  --text-disable: #444b5a; /* Deep dim */
+
+  --border-1: #2d323d; /* Cool edge */
+
+  --primary: #6a7fa8; /* Dusty blue */
+  --primary-light: rgba(106, 127, 168, 0.12);
+
+  --danger: #c55a4a; /* Warm red */
+  --danger-light: rgba(197, 90, 74, 0.12);
+
+  --success: #5a8060; /* Muted teal-green */
+  --success-light: rgba(90, 128, 96, 0.12);
+
+  /* Role badge colors */
+  --role-system-bg: rgba(130, 100, 160, 0.15);
+  --role-system-text: #a088c0;
+  --role-user-bg: rgba(106, 127, 168, 0.15);
+  --role-user-text: #7a9bcc;
+  --role-assistant-bg: rgba(90, 128, 96, 0.15);
+  --role-assistant-text: #81c784;
+  --role-tool-bg: rgba(170, 140, 60, 0.15);
+  --role-tool-text: #e2b340;
+
+  /* Selection & focus */
+  --selection-color: rgba(106, 127, 168, 0.25);
+
+  /* Shadows — deep cool */
+  --shadow-card-value: 0 1px 4px 0 rgba(0, 0, 0, 0.5),
+    0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-panel-value: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
+  --shadow-modal-value: 0 8px 24px 0 rgba(0, 0, 0, 0.5);
+  --shadow-focus-value: 0 0 0 3px rgba(106, 127, 168, 0.2);
+  --shadow-streaming: rgba(106, 127, 168, 0.1);
+}
+
 * {
   border-color: var(--border-1);
 }
