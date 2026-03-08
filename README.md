@@ -45,23 +45,31 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 
 EchoSpace ships with agent skills that work with any coding agent — [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenAI Codex](https://openai.com/index/codex/), or any tool that supports the skills/SKILL.md convention.
 
-**Claude Code:**
-
 ```bash
-claude install-skill https://github.com/stonexer/echospace/tree/master/skills/echospace
+npx skills add https://github.com/stonexer/echospace/tree/master/skills/echospace
 ```
-
-**Other agents:** Copy the `skills/echospace/` directory into your project's skills folder.
 
 ### 2. Configure providers
 
-Run the interactive setup wizard in your coding agent:
-
-```
-/echospace:init
+```bash
+npx echospace init
 ```
 
-This will guide you through selecting LLM providers (OpenAI, Anthropic, Google, Vercel AI Gateway) and entering API keys. The config is saved to `~/.echospace/config.yaml`.
+```
+◆ Which LLM service do you use?
+│ ○ OpenAI
+│ ○ Anthropic (Claude)
+│ ○ Google (Gemini)
+│ ○ Vercel AI Gateway
+│ ○ Custom Gateway (OpenAI-compatible)
+
+◆ Enter your API Key:
+│ sk-xxxxxxxx
+
+✓ Config saved to ~/.echospace/config.yaml
+```
+
+Or use the agent skill: `/echospace:init`
 
 ### 3. Launch
 

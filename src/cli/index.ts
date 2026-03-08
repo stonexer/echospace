@@ -7,6 +7,7 @@ import path from "node:path";
 import open from "open";
 import { ensureConfig } from "../server/services/config";
 import { startServer } from "../server/index";
+import { runInit } from "./init";
 
 const VERSION = process.env.npm_package_version ?? "0.0.0";
 
@@ -85,5 +86,10 @@ program
     process.on("SIGINT", shutdown);
     process.on("SIGTERM", shutdown);
   });
+
+program
+  .command("init")
+  .description("Interactive setup for LLM provider configuration")
+  .action(runInit);
 
 program.parse();

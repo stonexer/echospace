@@ -1,13 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="131 131 250 250" width="512" height="512">
-  <!-- Outer brown rounded square -->
-  <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="#BB4B03"/>
-
-  <!-- Inner cream cutout -->
-  <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="#F2E2C1"/>
-
-  <!-- Middle brown rounded square -->
-  <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="#BB4B03"/>
-
-  <!-- Center cream square -->
-  <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="#F2E2C1"/>
+  <defs>
+    <mask id="cutout">
+      <rect x="131" y="131" width="250" height="250" fill="white"/>
+      <!-- Inner cutout -->
+      <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="black"/>
+      <!-- Middle fill-back -->
+      <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="white"/>
+      <!-- Center cutout -->
+      <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="currentColor" mask="url(#cutout)"/>
 </svg>

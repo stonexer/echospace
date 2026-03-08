@@ -1,7 +1,16 @@
 import { useRef, useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { usePluginStore } from "../../lib/store-context";
-import { getTheme, setTheme, type Theme } from "../../lib/theme";
+import {
+  getMode,
+  getTheme,
+  setMode,
+  setTheme,
+  LIGHT_THEMES,
+  DARK_THEMES,
+  type Mode,
+  type Theme,
+} from "../../lib/theme";
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -11,11 +20,19 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const pluginStore = usePluginStore();
   const { plugins, setEnabled } = useStore(pluginStore);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [currentMode, setCurrentMode] = useState<Mode>(getMode);
   const [currentTheme, setCurrentTheme] = useState<Theme>(getTheme);
+
+  const handleModeChange = (mode: Mode) => {
+    setMode(mode);
+    setCurrentMode(mode);
+    setCurrentTheme(getTheme());
+  };
 
   const handleThemeChange = (theme: Theme) => {
     setTheme(theme);
     setCurrentTheme(theme);
+    setCurrentMode(getMode());
   };
 
   useEffect(() => {
@@ -46,27 +63,42 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
       </div>
       <div className="border-b border-border px-3 py-2">
         <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-placeholder">
-          Theme
+          Mode
         </div>
         <div className="grid grid-cols-2 gap-1">
-          {([
-            ["retro", "Retro Light"],
-            ["dusk", "Dusk Warmer"],
-            ["ember", "Ember Dark"],
-            ["slate", "Slate Dark"],
-          ] as const).map(([key, label]) => (
+          {(["light", "dark"] as const).map((mode) => (
             <button
-              key={key}
-              onClick={() => handleThemeChange(key)}
-              className={`rounded px-2 py-1 text-[12px] font-medium transition-colors ${
-                currentTheme === key
+              key={mode}
+              onClick={() => handleModeChange(mode)}
+              className={`rounded px-2 py-1 text-[12px] font-medium capitalize transition-colors ${
+                currentMode === mode
                   ? "bg-primary/15 text-primary"
                   : "bg-bg-2 text-text-desc hover:text-text-secondary"
               }`}
             >
-              {label}
+              {mode}
             </button>
           ))}
+        </div>
+        <div className="mt-1.5 mb-0.5 text-[10px] font-medium uppercase tracking-wider text-text-placeholder">
+          Theme
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          {(currentMode === "light" ? LIGHT_THEMES : DARK_THEMES).map(
+            ({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => handleThemeChange(key)}
+                className={`rounded px-2 py-1 text-[12px] font-medium transition-colors ${
+                  currentTheme === key
+                    ? "bg-primary/15 text-primary"
+                    : "bg-bg-2 text-text-desc hover:text-text-secondary"
+                }`}
+              >
+                {label}
+              </button>
+            )
+          )}
         </div>
       </div>
       <div className="px-3 py-2">
