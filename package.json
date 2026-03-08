@@ -1,8 +1,27 @@
 {
   "name": "echospace",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
+  "description": "Open-source, local-first prompt debugging workspace for LLM developers",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stonexer/echospace.git"
+  },
+  "homepage": "https://github.com/stonexer/echospace",
+  "bugs": "https://github.com/stonexer/echospace/issues",
+  "keywords": [
+    "llm",
+    "prompt",
+    "debugging",
+    "openai",
+    "anthropic",
+    "gemini",
+    "chatgpt",
+    "claude",
+    "ai",
+    "developer-tools"
+  ],
   "bin": {
     "echospace": "./dist/cli/index.js"
   },
