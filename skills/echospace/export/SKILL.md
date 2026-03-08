@@ -1,5 +1,5 @@
 ---
-name: echo-export
+name: echospace:export
 description: >-
   Convert conversation files (OpenAI, Anthropic, Google, Vercel/Helicone, raw
   text) into .echo format. Triggers: echo export, convert to echo, json to echo,

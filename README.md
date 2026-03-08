@@ -37,6 +37,30 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 
 ## Quick Start
 
+### 1. Install skills
+
+EchoSpace ships with agent skills that work with any coding agent — [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenAI Codex](https://openai.com/index/codex/), or any tool that supports the skills/SKILL.md convention.
+
+**Claude Code:**
+
+```bash
+claude install-skill https://github.com/stonexer/echospace/tree/master/skills/echospace
+```
+
+**Other agents:** Copy the `skills/echospace/` directory into your project's skills folder.
+
+### 2. Configure providers
+
+Run the interactive setup wizard in your coding agent:
+
+```
+/echospace:init
+```
+
+This will guide you through selecting LLM providers (OpenAI, Anthropic, Google, Vercel AI Gateway) and entering API keys. The config is saved to `~/.echospace/config.yaml`.
+
+### 3. Launch
+
 ```bash
 npx echospace
 ```
@@ -51,8 +75,7 @@ echospace ./my-project
 This will:
 
 1. Create a `.echo/` workspace in your project directory
-2. Generate a default config at `~/.echospace/config.yaml`
-3. Start a local server and open the UI in your browser
+2. Start a local server and open the UI in your browser
 
 ```
   ╔══════════════════════════════════════╗
@@ -62,6 +85,14 @@ This will:
   ║  URL:       http://localhost:7788    ║
   ╚══════════════════════════════════════╝
 ```
+
+### Available Skills
+
+| Skill | Description |
+|-------|-------------|
+| `/echospace:init` | Interactive setup wizard — select providers, enter API keys, generate config |
+| `/echospace:export` | Convert conversation files (OpenAI, Anthropic, Google, Helicone, raw text) into `.echo` format |
+| `/echospace:integrate` | Integrate `.echo` export into your own app |
 
 ### CLI Options
 
@@ -109,36 +140,40 @@ Each message can contain multiple part types: `text`, `thinking`, `tool_call`, `
 
 ## Configuration
 
-On first launch, EchoSpace creates `~/.echospace/config.yaml`:
+On first launch, EchoSpace creates `~/.echospace/config.yaml`. Fill in the `api_key` for the providers you want to use — unconfigured providers are automatically ignored.
 
 ```yaml
 providers:
   - name: openai
     type: openai
-    api_key: ${OPENAI_API_KEY}
+    api_key: sk-xxxxxxxx
     models:
+      - gpt-4.1
+      - gpt-4.1-mini
+      - gpt-4.1-nano
       - gpt-4o
       - gpt-4o-mini
-      - o1
+      - o3
       - o3-mini
+      - o4-mini
 
   - name: anthropic
     type: anthropic
-    api_key: ${ANTHROPIC_API_KEY}
+    api_key: sk-ant-xxxxxxxx
     models:
       - claude-sonnet-4-6
       - claude-haiku-4-5
 
   - name: google
     type: google
-    api_key: ${GOOGLE_API_KEY}
+    api_key: AIza-xxxxxxxx
     models:
-      - gemini-2.0-flash
       - gemini-2.5-pro
+      - gemini-2.5-flash
+      - gemini-2.0-flash
 ```
 
-- **`${ENV_VAR}`** syntax is resolved from your environment at runtime
-- `.env` files in your project directory are auto-loaded
+> **Tip:** `${ENV_VAR}` syntax is also supported for API keys — they are resolved from your environment at runtime. `.env` files in your project directory are auto-loaded.
 
 ---
 

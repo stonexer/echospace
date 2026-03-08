@@ -29,7 +29,7 @@ export function configRoutes(options: ConfigRouteOptions) {
     const providerList = (config.providers as Array<{ name: string; type: string; api_key?: string; models: string[] }>) ?? [];
     const providers = providerList
       .filter((p) => {
-        if (!p.api_key) return true; // no key required
+        if (p.api_key == null) return true; // no key field = no key required
         const resolved = p.api_key.replace(/\$\{(\w+)\}/g, (_, name) => process.env[name] ?? "");
         return resolved.length > 0;
       })

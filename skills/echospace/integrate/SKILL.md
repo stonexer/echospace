@@ -1,5 +1,5 @@
 ---
-name: echo-integrate
+name: echospace:integrate
 description: >-
   Integrate .echo export into your app so users can send conversations to
   EchoSpace for review and replay. Triggers: integrate echo, add echo export,

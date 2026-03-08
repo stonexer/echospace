@@ -5,45 +5,21 @@ import yaml from "js-yaml";
 const DEFAULT_CONFIG = {
   providers: [
     {
-      name: "vercel",
-      type: "openai",
-      api_key: "${AI_GATEWAY_API_KEY}",
-      base_url: "https://ai-gateway.vercel.sh/v1",
-      models: [
-        "anthropic/claude-sonnet-4-6",
-        "anthropic/claude-haiku-4-5",
-        "openai/gpt-4.1",
-        "openai/gpt-4.1-mini",
-        "openai/gpt-4.1-nano",
-        "openai/gpt-4o",
-        "openai/gpt-4o-mini",
-        "openai/o3",
-        "openai/o3-mini",
-        "openai/o4-mini",
-        "google/gemini-2.5-pro",
-        "google/gemini-2.5-flash",
-        "google/gemini-2.0-flash",
-        "deepseek/deepseek-chat",
-        "deepseek/deepseek-reasoner",
-        "xai/grok-3-mini",
-      ],
-    },
-    {
       name: "openai",
       type: "openai",
-      api_key: "${OPENAI_API_KEY}",
+      api_key: "",
       models: ["gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o", "gpt-4o-mini", "o3", "o3-mini", "o4-mini"],
     },
     {
       name: "anthropic",
       type: "anthropic",
-      api_key: "${ANTHROPIC_API_KEY}",
+      api_key: "",
       models: ["claude-sonnet-4-6", "claude-haiku-4-5"],
     },
     {
       name: "google",
       type: "google",
-      api_key: "${GOOGLE_API_KEY}",
+      api_key: "",
       models: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
     },
   ],
@@ -86,6 +62,13 @@ export function ensureConfig(configDir: string): void {
 
   const configPath = getConfigPath(configDir);
   if (!fs.existsSync(configPath)) {
-    saveConfig(configDir, DEFAULT_CONFIG);
+    fs.mkdirSync(configDir, { recursive: true });
+    const header = [
+      "# EchoSpace configuration",
+      "# Fill in the api_key for the providers you need. Unconfigured providers are ignored.",
+      "# Run /echospace:init for interactive setup.",
+      "",
+    ].join("\n");
+    fs.writeFileSync(configPath, header + yaml.dump(DEFAULT_CONFIG), "utf-8");
   }
 }
