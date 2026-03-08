@@ -46,7 +46,7 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 EchoSpace ships with agent skills that work with any coding agent — [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenAI Codex](https://openai.com/index/codex/), or any tool that supports the skills/SKILL.md convention.
 
 ```bash
-npx skills add https://github.com/stonexer/echospace/tree/master/skills/echospace
+npx skills add stonexer/echospace
 ```
 
 ### 2. Configure providers
@@ -68,8 +68,6 @@ npx echospace init
 
 ✓ Config saved to ~/.echospace/config.yaml
 ```
-
-Or use the agent skill: `/echospace:init`
 
 ### 3. Launch
 
@@ -100,11 +98,10 @@ This will:
 
 ### Available Skills
 
-| Skill | Description |
-|-------|-------------|
-| `/echospace:init` | Interactive setup wizard — select providers, enter API keys, generate config |
-| `/echospace:export` | Convert conversation files (OpenAI, Anthropic, Google, Helicone, raw text) into `.echo` format |
-| `/echospace:integrate` | Integrate `.echo` export into your own app |
+| Skill                     | Description                                                                                    |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| `/echospace-export`       | Convert conversation files (OpenAI, Anthropic, Google, Helicone, raw text) into `.echo` format |
+| `/echospace-integrate`    | Integrate `.echo` export into your own app                                                     |
 
 ### CLI Options
 
