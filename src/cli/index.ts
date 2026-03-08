@@ -59,7 +59,7 @@ program
     // Find available port
     const port = options.port
       ? parseInt(options.port, 10)
-      : await getPort({ port: portNumbers(7788, 7799) });
+      : await getPort({ port: portNumbers(3240, 3249) });
 
     console.log(`
   ╔══════════════════════════════════════╗

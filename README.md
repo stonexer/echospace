@@ -1,6 +1,10 @@
-# EchoSpace
+<p align="center">
+  <img src="assets/echospace-logo/echospace-logo.png" alt="EchoSpace" width="128" />
+</p>
 
-**The open-source, local-first prompt debugging workspace for LLM developers.**
+<h1 align="center">EchoSpace</h1>
+
+<p align="center"><strong>The open-source, local-first prompt debugging workspace for LLM developers.</strong></p>
 
 Debug, iterate, and manage your prompts across OpenAI, Anthropic, and Google — all from your terminal. No cloud, no accounts, no lock-in.
 
@@ -18,7 +22,7 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 
 ### CLI & SDK
 
-`npx echospace` to launch. Core TypeScript modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) can be imported as a library for building your own tools.
+`npx echospace@alpha` to launch. Core TypeScript modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) can be imported as a library for building your own tools.
 
 ---
 
@@ -62,7 +66,7 @@ This will guide you through selecting LLM providers (OpenAI, Anthropic, Google, 
 ### 3. Launch
 
 ```bash
-npx echospace
+npx echospace@alpha
 ```
 
 Or install globally:
@@ -82,7 +86,7 @@ This will:
   ║           EchoSpace v0.1.0          ║
   ╠══════════════════════════════════════╣
   ║  Workspace: /my-project/.echo        ║
-  ║  URL:       http://localhost:7788    ║
+  ║  URL:       http://localhost:3240    ║
   ╚══════════════════════════════════════╝
 ```
 
@@ -100,7 +104,7 @@ This will:
 echospace [workdir] [options]
 
   [workdir]           Workspace directory (default: ".")
-  -p, --port <port>   Port to serve on (default: auto-select 7788-7799)
+  -p, --port <port>   Port to serve on (default: auto-select 3240-3249)
   --no-open           Don't open browser automatically
 ```
 
@@ -117,24 +121,6 @@ echospace [workdir] [options]
 ```
 
 Each message can contain multiple part types: `text`, `thinking`, `tool_call`, `tool_result`, `image`.
-
----
-
-## Architecture
-
-```
-┌─────────┐       ┌──────────────┐       ┌──────────────────┐
-│  CLI    │──────▶│  Hono Server │──────▶│ Provider Adapters│
-│ (Commander)     │  (localhost)  │       │ ┌──────────────┐ │
-└─────────┘       │              │       │ │   OpenAI      │ │──▶ LLM APIs
-                  │  /api/*      │       │ │   Anthropic   │ │
-┌─────────┐       │              │       │ │   Google      │ │
-│ React UI│◀─────▶│  Static files│       │ └──────────────┘ │
-│ (browser)│      └──────────────┘       └──────────────────┘
-└─────────┘
-```
-
-**Tech stack:** React 19 · Hono · Zustand · Tailwind CSS 4 · Vite · CodeMirror · tiktoken
 
 ---
 
@@ -177,38 +163,13 @@ providers:
 
 ---
 
-## SDK / Programmatic Usage
-
-Core modules can be imported directly for building your own tooling:
-
-```typescript
-import { parseEcho, serializeEcho } from "echospace/core/echo";
-import { smartParse, detectFormat } from "echospace/core/smart-paste";
-import { createProviderRegistry } from "echospace/core/providers/registry";
-
-// Parse a .echo file
-const conversation = parseEcho(fileContents);
-console.log(conversation.meta.title);
-console.log(conversation.messages.length);
-
-// Detect and convert from other formats
-const format = detectFormat(clipboardText); // "openai" | "anthropic" | "google" | "raw" | ...
-const messages = smartParse(clipboardText);
-
-// Create a provider registry
-const registry = createProviderRegistry();
-const adapter = registry.get("openai");
-```
-
----
-
 ## Development
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Start dev server (UI on :5173, API on :7788)
+# Start dev server (UI on :5173, API on :3240)
 pnpm dev
 
 # Other scripts
