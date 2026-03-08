@@ -15,6 +15,7 @@ const clientDir = path.resolve(__dirname, "../client");
 export function createServer(options: {
   workspaceDir: string;
   configDir: string;
+  dev?: boolean;
 }) {
   const app = new Hono();
 
@@ -27,11 +28,30 @@ export function createServer(options: {
   app.route("/api/chat", chatRoutes(options));
   app.route("/api/config", configRoutes(options));
 
-  // Static files (Vite build output) — use absolute path so global installs work
-  app.use("/*", serveStatic({ root: clientDir }));
-
-  // SPA fallback
-  app.get("*", serveStatic({ root: clientDir, path: "index.html" }));
+  if (options.dev) {
+    // Dev mode: proxy non-API requests to Vite dev server
+    const viteUrl = "http://localhost:5173";
+    app.all("*", async (c) => {
+      const url = new URL(c.req.url);
+      const target = `${viteUrl}${url.pathname}${url.search}`;
+      const res = await fetch(target, {
+        method: c.req.method,
+        headers: c.req.raw.headers,
+        body: c.req.method === "GET" || c.req.method === "HEAD" ? undefined : c.req.raw.body,
+        // @ts-expect-error -- Node fetch supports duplex for streaming bodies
+        duplex: "half",
+      });
+      return new Response(res.body, {
+        status: res.status,
+        headers: res.headers,
+      });
+    });
+  } else {
+    // Production: serve static files from Vite build output
+    app.use("/*", serveStatic({ root: clientDir }));
+    // SPA fallback
+    app.get("*", serveStatic({ root: clientDir, path: "index.html" }));
+  }
 
   return app;
 }
@@ -40,6 +60,7 @@ export function startServer(options: {
   port: number;
   workspaceDir: string;
   configDir: string;
+  dev?: boolean;
 }) {
   const app = createServer(options);
 

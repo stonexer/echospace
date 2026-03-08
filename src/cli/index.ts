@@ -70,7 +70,8 @@ program
   ╚══════════════════════════════════════╝
 `);
 
-    startServer({ port, workspaceDir, configDir: CONFIG_DIR });
+    const isDev = process.env.NODE_ENV !== "production" && import.meta.url.includes("/src/");
+    startServer({ port, workspaceDir, configDir: CONFIG_DIR, dev: isDev });
 
     if (options.open) {
       await open(`http://localhost:${port}`);
