@@ -35,10 +35,10 @@ interface MessageEditorProps {
 }
 
 const ROLE_STYLES: Record<EchoRole, string> = {
-  system: "bg-[rgba(120,90,150,0.10)] text-[#7a5a96]",
-  user: "bg-primary/10 text-primary",
-  assistant: "bg-[rgba(90,126,69,0.10)] text-[#4a7040]",
-  tool: "bg-[rgba(178,130,50,0.10)] text-[#9a7030]",
+  system: "bg-[var(--role-system-bg)] text-[var(--role-system-text)]",
+  user: "bg-[var(--role-user-bg)] text-[var(--role-user-text)]",
+  assistant: "bg-[var(--role-assistant-bg)] text-[var(--role-assistant-text)]",
+  tool: "bg-[var(--role-tool-bg)] text-[var(--role-tool-text)]",
 };
 
 const ROLE_CYCLE: EchoRole[] = ["user", "assistant", "tool"];
@@ -209,7 +209,7 @@ export function MessageEditor({
     <div
       className={`group relative rounded border transition-colors ${
         isStreaming
-          ? "animate-pulse border-primary/40 bg-bg-1-2 shadow-[0_0_12px_rgba(163,98,58,0.08)] [animation-duration:2s]"
+          ? "animate-pulse border-primary/40 bg-bg-1-2 shadow-[0_0_12px_var(--shadow-streaming)] [animation-duration:2s]"
           : "border-border bg-bg-1 hover:border-bg-5"
       }`}
     >

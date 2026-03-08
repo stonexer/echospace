@@ -1,6 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { usePluginStore } from "../../lib/store-context";
+import { getTheme, setTheme, type Theme } from "../../lib/theme";
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -10,6 +11,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const pluginStore = usePluginStore();
   const { plugins, setEnabled } = useStore(pluginStore);
   const panelRef = useRef<HTMLDivElement>(null);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(getTheme);
+
+  const handleThemeChange = (theme: Theme) => {
+    setTheme(theme);
+    setCurrentTheme(theme);
+  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -36,6 +43,33 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         <span className="font-serif text-[11px] italic text-text-desc">
           Settings
         </span>
+      </div>
+      <div className="border-b border-border px-3 py-2">
+        <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-placeholder">
+          Theme
+        </div>
+        <div className="flex gap-1">
+          <button
+            onClick={() => handleThemeChange("retro")}
+            className={`flex-1 rounded px-2 py-1 text-[12px] font-medium transition-colors ${
+              currentTheme === "retro"
+                ? "bg-primary/15 text-primary"
+                : "bg-bg-2 text-text-desc hover:text-text-secondary"
+            }`}
+          >
+            Retro Light
+          </button>
+          <button
+            onClick={() => handleThemeChange("dusk")}
+            className={`flex-1 rounded px-2 py-1 text-[12px] font-medium transition-colors ${
+              currentTheme === "dusk"
+                ? "bg-primary/15 text-primary"
+                : "bg-bg-2 text-text-desc hover:text-text-secondary"
+            }`}
+          >
+            Dusk Warmer
+          </button>
+        </div>
       </div>
       <div className="px-3 py-2">
         <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-placeholder">

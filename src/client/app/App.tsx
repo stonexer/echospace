@@ -14,6 +14,9 @@ import { htmlRendererPlugin } from '~/core/plugins';
 import { detectFormat, smartParse } from '~/core/smart-paste';
 import { serializeEcho } from '~/core/echo';
 import { nanoid } from 'nanoid';
+import { initTheme } from '../lib/theme';
+
+initTheme();
 
 const SMALL_SCREEN_BREAKPOINT = 720;
 
@@ -344,9 +347,9 @@ export function App() {
           theme="light"
           toastOptions={{
             style: {
-              background: '#f5f1e9',
-              border: '1px solid #d8d0c2',
-              color: '#2e2720',
+              background: 'var(--bg-1-1)',
+              border: '1px solid var(--border-1)',
+              color: 'var(--text-normal)',
               fontSize: '12.5px',
               fontFamily: 'DM Sans, sans-serif'
             }

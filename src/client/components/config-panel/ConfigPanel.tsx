@@ -158,7 +158,7 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
           <div className="flex flex-wrap gap-x-2 gap-y-0.5 px-0.5 font-mono text-[11px] leading-[16px]">
             <span className="text-text-desc">
               response_format:{' '}
-              <span className="text-[#5a7e45]">
+              <span className="text-[var(--success)]">
                 {settings.response_format ?? 'text'}
               </span>
             </span>
@@ -286,7 +286,7 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
                       }
                       className={`h-6 rounded border px-2 text-[11px] font-medium transition-colors ${
                         schemaStrict
-                          ? 'border-[#5a7e45]/30 bg-[#5a7e45]/10 text-[#5a7e45]'
+                          ? 'border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]'
                           : 'border-border bg-bg-1 text-text-desc'
                       }`}
                     >

@@ -104,7 +104,7 @@ export function ThreadEditor() {
                         : isHighlighted
                           ? 'size-[9px] bg-amber-500 hover:bg-amber-400'
                           : isRun
-                            ? 'size-[7px] bg-[#5a7e45]/60 hover:bg-[#5a7e45]'
+                            ? 'size-[7px] bg-[var(--success)]/60 hover:bg-[var(--success)]'
                             : 'size-[7px] bg-bg-5 hover:bg-text-desc'
                   }`}
                 />

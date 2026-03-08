@@ -42,7 +42,7 @@ export function TimelineBar({
                   : isPeeking
                     ? "bg-text-normal scale-[1.6]"
                     : isRun
-                      ? "bg-[#5a7e45]/60 hover:bg-[#5a7e45]"
+                      ? "bg-[var(--success)]/60 hover:bg-[var(--success)]"
                       : "bg-bg-5 hover:bg-text-desc"
               }`}
             />
