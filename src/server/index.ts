@@ -67,7 +67,7 @@ export function startServer(options: {
   serve(
     { fetch: app.fetch, port: options.port },
     (info) => {
-      console.log(`Echo Space running at http://localhost:${info.port}`);
+      console.log(`EchoSpace running at http://localhost:${info.port}`);
     },
   );
 

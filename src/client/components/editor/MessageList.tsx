@@ -45,7 +45,7 @@ export function MessageList({
                 message={msg}
                 index={index}
                 allMessages={messages}
-                isReadonly={isReadonly}
+                isReadonly={isReadonly || isStreaming}
                 isStreaming={isStreaming && msg.id === streamingMessageId}
               />
             </div>

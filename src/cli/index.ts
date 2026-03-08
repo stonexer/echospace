@@ -10,7 +10,7 @@ import { startServer } from "../server/index";
 
 const VERSION = process.env.npm_package_version ?? "0.0.0";
 
-const CONFIG_DIR = path.join(homedir(), ".echo-space");
+const CONFIG_DIR = path.join(homedir(), ".echospace");
 
 /** Load .env file into process.env (simple key=value parser) */
 function loadEnvFile(dir: string) {
@@ -33,7 +33,7 @@ function loadEnvFile(dir: string) {
 const program = new Command();
 
 program
-  .name("echo-space")
+  .name("echospace")
   .description("The best open-source local prompt debugging tool")
   .version(VERSION)
   .argument("[workdir]", "Workspace directory", ".")
@@ -63,7 +63,7 @@ program
 
     console.log(`
   ╔══════════════════════════════════════╗
-  ║           Echo Space v${VERSION.padEnd(12)}║
+  ║           EchoSpace v${VERSION.padEnd(12)}║
   ╠══════════════════════════════════════╣
   ║  Workspace: ${workspaceDir.padEnd(24)}║
   ║  URL:       http://localhost:${String(port).padEnd(8)}║
@@ -79,7 +79,7 @@ program
 
     // Graceful shutdown
     const shutdown = () => {
-      console.log("\nShutting down Echo Space...");
+      console.log("\nShutting down EchoSpace...");
       process.exit(0);
     };
     process.on("SIGINT", shutdown);

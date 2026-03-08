@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "bin": {
-    "echo-space": "./dist/cli/index.js"
+    "echospace": "./dist/cli/index.js"
   },
   "files": [
     "dist"

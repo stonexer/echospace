@@ -38,9 +38,9 @@ export function TimelineBar({
               title={event.summary ?? `${event.type} — ${event.created_at}`}
               className={`size-[7px] shrink-0 rounded-full transition-all ${
                 isCurrent
-                  ? "bg-text-normal scale-[1.4]"
+                  ? "bg-primary scale-[1.4]"
                   : isPeeking
-                    ? "bg-primary scale-[1.6]"
+                    ? "bg-text-normal scale-[1.6]"
                     : isRun
                       ? "bg-[#5a7e45]/60 hover:bg-[#5a7e45]"
                       : "bg-bg-5 hover:bg-text-desc"

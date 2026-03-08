@@ -69,13 +69,14 @@ export function ThreadEditor() {
       {/* Header bar: Timeline left, actions right */}
       <header className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
         {/* Timeline dots */}
-        <div>
+        <div className="flex min-w-0 items-center gap-2">
           <span className="shrink-0 font-serif text-[11px] italic text-text-desc">
             Timeline
           </span>
           <div
             ref={timelineRef}
             className="flex min-w-0 flex-1 flex-wrap items-center gap-[3px]"
+            onMouseLeave={() => restoreFromPeek()}
           >
             {historyEvents.map((event) => {
               const isCurrent = event.id === currentEventId;
@@ -86,13 +87,12 @@ export function ThreadEditor() {
                   key={event.id}
                   onClick={() => revertToEvent(event.id)}
                   onMouseEnter={() => peekEvent(event.id)}
-                  onMouseLeave={() => restoreFromPeek()}
                   title={event.summary ?? `${event.type} — ${event.created_at}`}
                   className={`size-[7px] shrink-0 rounded-full transition-all ${
                     isCurrent
-                      ? 'bg-text-normal scale-[1.4]'
+                      ? 'bg-primary scale-[1.4]'
                       : isPeeking
-                        ? 'bg-primary scale-[1.6]'
+                        ? 'bg-text-normal scale-[1.6]'
                         : isRun
                           ? 'bg-[#5a7e45]/60 hover:bg-[#5a7e45]'
                           : 'bg-bg-5 hover:bg-text-desc'

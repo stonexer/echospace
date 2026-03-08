@@ -11,11 +11,11 @@ description: >-
 
 This skill helps you integrate **export-to-echo** or **copy-as-echo** functionality
 into any project. The `.echo` format is an NDJSON-based conversation protocol
-used by [EchoSpace](https://github.com/anthropics/echo-space). Users export
+used by [EchoSpace](https://github.com/stonexer/echospace). Users export
 conversations from your app as `.echo` files, then import them into their local
 EchoSpace for review, replay, and continuation.
 
-You are NOT working inside the echo-space codebase. You are adding echo export
+You are NOT working inside the echospace codebase. You are adding echo export
 capability to an external project.
 
 ---

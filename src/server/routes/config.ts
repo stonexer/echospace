@@ -23,14 +23,21 @@ export function configRoutes(options: ConfigRouteOptions) {
   });
 
   // List available providers and their models
+  // Only returns providers whose api_key resolves to a non-empty value.
   app.get("/providers", async (c) => {
     const config = loadConfig(options.configDir);
-    const providerList = (config.providers as Array<{ name: string; type: string; models: string[] }>) ?? [];
-    const providers = providerList.map((p) => ({
-      name: p.name,
-      type: p.type,
-      models: p.models ?? [],
-    }));
+    const providerList = (config.providers as Array<{ name: string; type: string; api_key?: string; models: string[] }>) ?? [];
+    const providers = providerList
+      .filter((p) => {
+        if (!p.api_key) return true; // no key required
+        const resolved = p.api_key.replace(/\$\{(\w+)\}/g, (_, name) => process.env[name] ?? "");
+        return resolved.length > 0;
+      })
+      .map((p) => ({
+        name: p.name,
+        type: p.type,
+        models: p.models ?? [],
+      }));
     return c.json({ providers });
   });
 

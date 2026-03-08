@@ -207,7 +207,7 @@ export function MessageEditor({
     <div
       className={`group relative rounded border transition-colors ${
         isStreaming
-          ? "border-primary/40 bg-bg-1-2 shadow-[0_0_12px_rgba(163,98,58,0.08)]"
+          ? "animate-pulse border-primary/40 bg-bg-1-2 shadow-[0_0_12px_rgba(163,98,58,0.08)] [animation-duration:2s]"
           : "border-border bg-bg-1 hover:border-bg-5"
       }`}
     >
@@ -243,6 +243,13 @@ export function MessageEditor({
             <RoleIcon role={message.role} />
             {message.role.charAt(0).toUpperCase() + message.role.slice(1)}
           </button>
+
+          {/* Streaming indicator */}
+          {isStreaming && (
+            <span className="text-[10px] font-medium text-primary">
+              Generating...
+            </span>
+          )}
 
           {/* Token counter + stats with tooltip */}
           <div className="group/stats relative flex items-center gap-1.5 font-mono text-[10px] text-text-placeholder">

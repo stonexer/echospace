@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { useThreadStore } from "../../lib/store-context";
+import { Combobox } from "../ui/Combobox";
 import { toast } from "sonner";
 
 interface ProviderInfo {
@@ -37,32 +38,20 @@ export function Toolbar() {
   return (
     <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border bg-bg-1 px-3">
       {/* Provider */}
-      <select
+      <Combobox
         value={settings.provider ?? ""}
-        onChange={(e) => updateSettings({ provider: e.target.value })}
-        className="h-6 rounded-sm border border-border bg-bg-2 px-2 text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
-      >
-        <option value="">Provider</option>
-        {providers.map((p) => (
-          <option key={p.name} value={p.name}>
-            {p.name}
-          </option>
-        ))}
-      </select>
+        options={providers.map((p) => p.name)}
+        placeholder="Provider"
+        onChange={(v) => updateSettings({ provider: v })}
+      />
 
       {/* Model */}
-      <select
+      <Combobox
         value={settings.model ?? ""}
-        onChange={(e) => updateSettings({ model: e.target.value })}
-        className="h-6 rounded-sm border border-border bg-bg-2 px-2 text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
-      >
-        <option value="">Model</option>
-        {models.map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
-      </select>
+        options={models}
+        placeholder="Model"
+        onChange={(v) => updateSettings({ model: v })}
+      />
 
       {/* Divider */}
       <div className="mx-1 h-4 w-px bg-border" />

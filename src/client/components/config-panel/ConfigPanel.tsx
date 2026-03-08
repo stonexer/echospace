@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { useThreadStore } from '../../lib/store-context';
+import { Combobox } from '../ui/Combobox';
 import type { EchoMessage, EchoToolDefinition } from '~/core/echo/types';
 
 interface ProviderInfo {
@@ -137,31 +138,20 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
           <div className="flex items-center gap-2">
             {/* Show provider selector only if multiple providers */}
             {!singleProvider && (
-              <select
+              <Combobox
                 value={settings.provider ?? ''}
-                onChange={(e) => handleProviderChange(e.target.value)}
-                className="h-7 rounded border border-border bg-bg-1 px-2 text-[12px] text-text-secondary outline-none transition-colors hover:border-bg-5 focus:border-primary"
-              >
-                <option value="">Provider</option>
-                {providers.map((p) => (
-                  <option key={p.name} value={p.name}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                options={providers.map((p) => p.name)}
+                placeholder="Provider"
+                onChange={handleProviderChange}
+              />
             )}
-            <select
+            <Combobox
               value={settings.model ?? ''}
-              onChange={(e) => updateSettings({ model: e.target.value })}
-              className="h-7 flex-1 rounded border border-border bg-bg-1 px-2 text-[12px] font-medium text-text-normal outline-none transition-colors hover:border-bg-5 focus:border-primary"
-            >
-              <option value="">Select model</option>
-              {models.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+              options={models}
+              placeholder="Select model"
+              onChange={(v) => updateSettings({ model: v })}
+              className="flex-1"
+            />
           </div>
 
           {/* Inline params display */}

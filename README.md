@@ -1,4 +1,4 @@
-# Echo Space
+# EchoSpace
 
 **The open-source, local-first prompt debugging workspace for LLM developers.**
 
@@ -6,7 +6,7 @@ Debug, iterate, and manage your prompts across OpenAI, Anthropic, and Google —
 
 ---
 
-## Why Echo Space?
+## Why EchoSpace?
 
 ### Local First
 
@@ -18,7 +18,7 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 
 ### CLI & SDK
 
-`npx echo-space` to launch. Core TypeScript modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) can be imported as a library for building your own tools.
+`npx echospace` to launch. Core TypeScript modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) can be imported as a library for building your own tools.
 
 ---
 
@@ -38,25 +38,25 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 ## Quick Start
 
 ```bash
-npx echo-space
+npx echospace
 ```
 
 Or install globally:
 
 ```bash
-pnpm add -g echo-space
-echo-space ./my-project
+pnpm add -g echospace
+echospace ./my-project
 ```
 
 This will:
 
 1. Create a `.echo/` workspace in your project directory
-2. Generate a default config at `~/.echo-space/config.yaml`
+2. Generate a default config at `~/.echospace/config.yaml`
 3. Start a local server and open the UI in your browser
 
 ```
   ╔══════════════════════════════════════╗
-  ║           Echo Space v0.1.0          ║
+  ║           EchoSpace v0.1.0          ║
   ╠══════════════════════════════════════╣
   ║  Workspace: /my-project/.echo        ║
   ║  URL:       http://localhost:7788    ║
@@ -66,7 +66,7 @@ This will:
 ### CLI Options
 
 ```
-echo-space [workdir] [options]
+echospace [workdir] [options]
 
   [workdir]           Workspace directory (default: ".")
   -p, --port <port>   Port to serve on (default: auto-select 7788-7799)
@@ -109,7 +109,7 @@ Each message can contain multiple part types: `text`, `thinking`, `tool_call`, `
 
 ## Configuration
 
-On first launch, Echo Space creates `~/.echo-space/config.yaml`:
+On first launch, EchoSpace creates `~/.echospace/config.yaml`:
 
 ```yaml
 providers:
@@ -147,9 +147,9 @@ providers:
 Core modules can be imported directly for building your own tooling:
 
 ```typescript
-import { parseEcho, serializeEcho } from "echo-space/core/echo";
-import { smartParse, detectFormat } from "echo-space/core/smart-paste";
-import { createProviderRegistry } from "echo-space/core/providers/registry";
+import { parseEcho, serializeEcho } from "echospace/core/echo";
+import { smartParse, detectFormat } from "echospace/core/smart-paste";
+import { createProviderRegistry } from "echospace/core/providers/registry";
 
 // Parse a .echo file
 const conversation = parseEcho(fileContents);

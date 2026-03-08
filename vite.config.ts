@@ -17,6 +17,11 @@ export default defineConfig({
   },
   server: {
     host: true,
+    hmr: {
+      // When accessed via the backend proxy (port 3240), HMR websocket
+      // needs to connect directly to the Vite dev server.
+      clientPort: 5173,
+    },
     proxy: {
       "/api": {
         target: "http://localhost:3240",
