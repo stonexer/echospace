@@ -176,5 +176,5 @@ export async function runInit() {
 
   const configPath = path.join(CONFIG_DIR, "config.yaml");
   p.log.success(`Config saved to ${configPath}`);
-  p.outro("You're all set! Run `npx echospace` to start.");
+  p.outro("You're all set! Run `npx echospace@alpha` to start.");
 }
