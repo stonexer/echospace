@@ -1,4 +1,5 @@
 import { useStore } from "zustand";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { useThreadStore } from "../../lib/store-context";
 import { MessageEditor, isHiddenToolMessage } from "./MessageEditor";
 import type { EchoMessage } from "~/core/echo/types";
@@ -15,7 +16,27 @@ export function MessageList({
   isStreaming,
 }: MessageListProps) {
   const store = useThreadStore();
-  const { addMessage, insertMessageBefore, streamingMessageId } = useStore(store);
+  const { addMessage, insertMessageBefore, reorderMessages, streamingMessageId } = useStore(store);
+
+  // Build visible items with mapping back to original indices
+  const visibleItems: { msg: EchoMessage; originalIndex: number }[] = [];
+  for (let i = 0; i < messages.length; i++) {
+    if (!isHiddenToolMessage(messages[i]!, messages)) {
+      visibleItems.push({ msg: messages[i]!, originalIndex: i });
+    }
+  }
+
+  const isDragDisabled = isReadonly || isStreaming;
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const fromVisible = result.source.index;
+    const toVisible = result.destination.index;
+    if (fromVisible === toVisible) return;
+    const fromOriginal = visibleItems[fromVisible]!.originalIndex;
+    const toOriginal = visibleItems[toVisible]!.originalIndex;
+    reorderMessages(fromOriginal, toOriginal);
+  };
 
   return (
     <div className="min-w-0 flex-1 px-4 py-3">
@@ -30,28 +51,54 @@ export function MessageList({
       </div>
 
       {/* Message cards with insertion lines */}
-      <div className="flex flex-col gap-3">
-        {messages.map((msg, index) => {
-          if (isHiddenToolMessage(msg, messages)) return null;
-          return (
-            <div key={msg.id} className="relative">
-              {/* Insertion line before each message */}
-              {!isReadonly && !isStreaming && (
-                <InsertionLine
-                  onInsertBefore={() => insertMessageBefore(msg.id, "user")}
-                />
-              )}
-              <MessageEditor
-                message={msg}
-                index={index}
-                allMessages={messages}
-                isReadonly={isReadonly || isStreaming}
-                isStreaming={isStreaming && msg.id === streamingMessageId}
-              />
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="message-list">
+          {(provided) => (
+            <div
+              className="flex flex-col gap-3"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {visibleItems.map(({ msg, originalIndex }, visibleIndex) => (
+                <Draggable
+                  key={msg.id}
+                  draggableId={msg.id}
+                  index={visibleIndex}
+                  isDragDisabled={isDragDisabled}
+                >
+                  {(draggableProvided, snapshot) => (
+                    <div
+                      ref={draggableProvided.innerRef}
+                      {...draggableProvided.draggableProps}
+                      className="relative"
+                      style={{
+                        ...draggableProvided.draggableProps.style,
+                        ...(snapshot.isDropAnimating ? { transitionDuration: '0.001s' } : {}),
+                      }}
+                    >
+                      {/* Insertion line before each message */}
+                      {!isReadonly && !isStreaming && (
+                        <InsertionLine
+                          onInsertBefore={() => insertMessageBefore(msg.id, "user")}
+                        />
+                      )}
+                      <MessageEditor
+                        message={msg}
+                        index={originalIndex}
+                        allMessages={messages}
+                        isReadonly={isReadonly || isStreaming}
+                        isStreaming={isStreaming && msg.id === streamingMessageId}
+                        dragHandleProps={draggableProvided.dragHandleProps}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-          );
-        })}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {/* Add message button */}
       {!isReadonly && !isStreaming && (

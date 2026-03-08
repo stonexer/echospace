@@ -31,6 +31,7 @@ interface MessageEditorProps {
   allMessages: EchoMessage[];
   isReadonly: boolean;
   isStreaming: boolean;
+  dragHandleProps?: React.HTMLAttributes<HTMLDivElement> | null;
 }
 
 const ROLE_STYLES: Record<EchoRole, string> = {
@@ -48,6 +49,7 @@ export function MessageEditor({
   allMessages,
   isReadonly,
   isStreaming,
+  dragHandleProps,
 }: MessageEditorProps) {
   const store = useThreadStore();
   const { updateMessage, updateMessageRole, removeMessage, runCompletion, runFromMessage, addImageToMessage, addToolResultMessage } =
@@ -223,6 +225,7 @@ export function MessageEditor({
 
       {/* Drag handle */}
       <div
+        {...dragHandleProps}
         className={`absolute top-[7px] left-[3px] opacity-0 transition-opacity ${
           !isReadonly ? "max-md:opacity-100 md:group-hover:opacity-100" : "pointer-events-none"
         }`}
