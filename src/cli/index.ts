@@ -64,18 +64,21 @@ program
 
     const url = `http://localhost:${port}`;
     const lines = [
-      `EchoSpace v${VERSION}`,
+      `回 EchoSpace v${VERSION}`,
       `Workspace: ${workspaceDir}`,
       `URL:       ${url}`,
     ];
-    const w = Math.max(...lines.map((l) => l.length)) + 4;
+    // Count display width (CJK/fullwidth = 2 columns)
+    const dw = (s: string) => [...s].reduce((n, c) => n + (c.charCodeAt(0) > 0x7f ? 2 : 1), 0);
+    const w = Math.max(...lines.map(dw)) + 4;
     const top = `  ╔${"═".repeat(w)}╗`;
     const mid = `  ╠${"═".repeat(w)}╣`;
     const bot = `  ╚${"═".repeat(w)}╝`;
-    const pad = (s: string) => `  ║  ${s.padEnd(w - 2)}║`;
+    const pad = (s: string) => `  ║  ${s}${" ".repeat(w - 2 - dw(s))}║`;
     const center = (s: string) => {
-      const left = Math.floor((w - s.length) / 2);
-      return `  ║${" ".repeat(left)}${s}${" ".repeat(w - left - s.length)}║`;
+      const sw = dw(s);
+      const left = Math.floor((w - sw) / 2);
+      return `  ║${" ".repeat(left)}${s}${" ".repeat(w - left - sw)}║`;
     };
     console.log(`
 ${top}
