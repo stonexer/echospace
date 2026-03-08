@@ -7,8 +7,9 @@
     "echo-space": "./dist/cli/index.js"
   },
   "scripts": {
-    "dev": "vite",
-    "dev:server": "tsx watch src/server/index.ts",
+    "dev": "tsx watch src/cli/index.ts . -p 7790 --no-open & vite --clearScreen false; kill $!",
+    "dev:client": "vite",
+    "dev:server": "tsx watch src/cli/index.ts . -p 7790 --no-open",
     "build": "tsc && vite build",
     "build:server": "tsx src/server/index.ts",
     "preview": "vite preview",

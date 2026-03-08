@@ -1,7 +1,29 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { useStore } from "zustand";
-import { useThreadStore } from "../../lib/store-context";
+import { useThreadStore, usePluginStore } from "../../lib/store-context";
 import type { EchoMessage, EchoRole, ToolCallPart } from "~/core/echo/types";
+
+/** Check if a tool message should be hidden (all its results are inlined in a preceding assistant message) */
+export function isHiddenToolMessage(message: EchoMessage, allMessages: EchoMessage[]): boolean {
+  if (message.role !== "tool") return false;
+  const toolResults = message.parts.filter((p) => p.type === "tool_result");
+  if (toolResults.length === 0) return false;
+  const text = message.parts.find((p) => p.type === "text")?.text ?? "";
+  if (text) return false; // has text content, don't hide
+  const myIdx = allMessages.findIndex((m) => m.id === message.id);
+  if (myIdx <= 0) return false;
+  for (let i = myIdx - 1; i >= 0; i--) {
+    const m = allMessages[i];
+    if (m.role === "assistant") {
+      const prevToolCallIds = new Set(
+        m.parts.filter((p): p is ToolCallPart => p.type === "tool_call" && !!p.id).map((p) => p.id)
+      );
+      return toolResults.every((tr) => prevToolCallIds.has(tr.id));
+    }
+    if (m.role !== "tool") break;
+  }
+  return false;
+}
 
 interface MessageEditorProps {
   message: EchoMessage;
@@ -28,11 +50,14 @@ export function MessageEditor({
   isStreaming,
 }: MessageEditorProps) {
   const store = useThreadStore();
-  const { updateMessage, updateMessageRole, removeMessage, runCompletion, addImageToMessage, addToolResultMessage } =
+  const { updateMessage, updateMessageRole, removeMessage, runCompletion, runFromMessage, addImageToMessage, addToolResultMessage } =
     useStore(store);
+  const pluginStore = usePluginStore();
+  const plugins = useStore(pluginStore, (s) => s.plugins);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [showHtmlView, setShowHtmlView] = useState(false);
 
   const text =
     message.parts.find((p) => p.type === "text")?.text ?? "";
@@ -67,27 +92,7 @@ export function MessageEditor({
       })()
     : null;
 
-  // Hide this tool message if all its results are rendered inline in the previous assistant
-  const isInlinedToolMessage = message.role === "tool" && toolResults.length > 0 && (() => {
-    const myIdx = allMessages.findIndex((m) => m.id === message.id);
-    if (myIdx <= 0) return false;
-    const prev = allMessages[myIdx - 1];
-    // Check if previous message (or a preceding assistant) has tool_calls that reference our tool_result ids
-    // Walk backwards to find the assistant message
-    for (let i = myIdx - 1; i >= 0; i--) {
-      const m = allMessages[i];
-      if (m.role === "assistant") {
-        const prevToolCallIds = new Set(
-          m.parts.filter((p): p is ToolCallPart => p.type === "tool_call" && !!p.id).map((p) => p.id)
-        );
-        return toolResults.every((tr) => prevToolCallIds.has(tr.id));
-      }
-      if (m.role !== "tool") break;
-    }
-    return false;
-  })();
-
-  if (isInlinedToolMessage && !text) return null;
+  const isInlinedToolMessage = isHiddenToolMessage(message, allMessages);
 
   const tokenEstimate = Math.ceil(text.length / 4);
 
@@ -172,6 +177,32 @@ export function MessageEditor({
   const latency = message.meta?.latency;
   const usage = message.meta?.usage;
 
+  // Check if any enabled plugin matches this message
+  const matchingPlugin = plugins.find(
+    (entry) => entry.enabled && entry.plugin.match(message)
+  );
+  const htmlOutput =
+    matchingPlugin && showHtmlView
+      ? matchingPlugin.plugin.render(message, {
+          theme: "light",
+          isStreaming,
+          isPeeking: isReadonly,
+        })
+      : null;
+
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const resizeIframe = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      const h = iframe.contentDocument?.documentElement?.scrollHeight;
+      if (h) iframe.style.height = `${Math.min(h + 2, 600)}px`;
+    } catch { /* cross-origin */ }
+  }, []);
+
+  const srcDoc = htmlOutput?.type === "html" ? htmlOutput.html : null;
+
   return (
     <div
       className={`group relative rounded border transition-colors ${
@@ -251,8 +282,22 @@ export function MessageEditor({
         <div className="flex shrink-0 items-center gap-1.5 pl-2">
           {/* Hover-reveal actions */}
           <div className={`flex items-center gap-1.5 transition-opacity ${
-            isReadonly ? "pointer-events-none opacity-0" : "max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+            isReadonly ? "pointer-events-none opacity-0" : showHtmlView ? "opacity-100" : "max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
           }`}>
+            {/* HTML view toggle */}
+            {matchingPlugin && (
+              <button
+                onClick={() => setShowHtmlView(!showHtmlView)}
+                title={showHtmlView ? "Show source" : "Show rendered HTML"}
+                className={`flex h-5 items-center justify-center rounded-sm px-1.5 font-mono text-[9px] font-medium transition-colors ${
+                  showHtmlView
+                    ? "bg-primary/15 text-primary"
+                    : "text-text-desc hover:bg-bg-4 hover:text-text-secondary"
+                }`}
+              >
+                {showHtmlView ? "SRC" : "HTML"}
+              </button>
+            )}
             {/* Add image */}
             <button
               onClick={handleImageUpload}
@@ -269,7 +314,7 @@ export function MessageEditor({
 
             {/* Run from this message */}
             <button
-              onClick={() => runCompletion()}
+              onClick={() => runFromMessage(message.id)}
               title="Run from this message"
               className="flex size-5 items-center justify-center rounded-sm text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
             >
@@ -356,33 +401,47 @@ export function MessageEditor({
         </div>
       )}
 
-      {/* Text content — hide for tool messages that only have tool_result parts */}
+      {/* Text content / HTML view — hide for tool messages that only have tool_result parts */}
       {!(message.role === "tool" && toolResults.length > 0 && !text) && (
         <div
           className={`transition-all ${
             collapsed ? "h-0 overflow-hidden opacity-0" : "min-h-[36px]"
           }`}
         >
-          <div className="px-3 pb-2">
-            <textarea
-              ref={textareaRef}
-              value={text}
-              onChange={(e) => handleTextChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              readOnly={isReadonly || isStreaming}
-              placeholder={
-                message.role === "user"
-                  ? "Enter a user message here"
-                  : message.role === "tool"
-                    ? "Enter tool result text here"
-                    : "Enter an assistant message here"
-              }
-              rows={1}
-              className={`w-full resize-none bg-transparent font-mono text-[12px] leading-[18px] text-text-normal outline-none placeholder:text-text-placeholder ${
-                isStreaming ? "opacity-90" : ""
-              }`}
-            />
-          </div>
+          {srcDoc ? (
+            <div className="px-3 pb-2">
+              <iframe
+                ref={iframeRef}
+                srcDoc={srcDoc}
+                sandbox="allow-scripts allow-same-origin"
+                className="w-full rounded border border-border bg-white"
+                style={{ height: 150, maxHeight: 600 }}
+                title="HTML preview"
+                onLoad={resizeIframe}
+              />
+            </div>
+          ) : (
+            <div className="px-3 pb-2">
+              <textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(e) => handleTextChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                readOnly={isReadonly || isStreaming}
+                placeholder={
+                  message.role === "user"
+                    ? "Enter a user message here"
+                    : message.role === "tool"
+                      ? "Enter tool result text here"
+                      : "Enter an assistant message here"
+                }
+                rows={1}
+                className={`w-full resize-none bg-transparent font-mono text-[12px] leading-[18px] text-text-normal outline-none placeholder:text-text-placeholder ${
+                  isStreaming ? "opacity-90" : ""
+                }`}
+              />
+            </div>
+          )}
         </div>
       )}
 

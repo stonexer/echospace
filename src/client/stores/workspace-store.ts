@@ -20,6 +20,7 @@ export interface WorkspaceActions {
   openTab(path: string): void;
   closeTab(path: string): void;
   createFile(filename: string): Promise<void>;
+  createFileFromRaw(filename: string, raw: string): Promise<boolean>;
   deleteFile(filename: string): Promise<void>;
 }
 
@@ -90,6 +91,22 @@ export function createWorkspaceStore() {
         await get().loadFiles();
         set({ activeFile: filename });
       }
+    },
+
+    async createFileFromRaw(filename: string, raw: string) {
+      const name = filename.endsWith(".echo") ? filename : `${filename}.echo`;
+      const res = await fetch("/api/files", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: name, raw }),
+      });
+
+      if (res.ok) {
+        await get().loadFiles();
+        set({ activeFile: name });
+        return true;
+      }
+      return false;
     },
 
     async deleteFile(filename: string) {

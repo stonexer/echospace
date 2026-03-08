@@ -31,7 +31,7 @@ export function FileList({
   };
 
   return (
-    <aside className="flex w-52 shrink-0 flex-col bg-bg-1">
+    <aside className="flex w-full shrink-0 flex-col bg-bg-1">
       {/* Section header */}
       <div className="flex h-9 items-center justify-between px-3">
         <span className="font-serif text-[11px] italic text-text-desc">

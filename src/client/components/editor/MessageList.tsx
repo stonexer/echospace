@@ -1,6 +1,6 @@
 import { useStore } from "zustand";
 import { useThreadStore } from "../../lib/store-context";
-import { MessageEditor } from "./MessageEditor";
+import { MessageEditor, isHiddenToolMessage } from "./MessageEditor";
 import type { EchoMessage } from "~/core/echo/types";
 
 interface MessageListProps {
@@ -31,23 +31,26 @@ export function MessageList({
 
       {/* Message cards with insertion lines */}
       <div className="flex flex-col gap-3">
-        {messages.map((msg, index) => (
-          <div key={msg.id} className="relative">
-            {/* Insertion line before each message */}
-            {!isReadonly && !isStreaming && (
-              <InsertionLine
-                onInsertBefore={() => insertMessageBefore(msg.id, "user")}
+        {messages.map((msg, index) => {
+          if (isHiddenToolMessage(msg, messages)) return null;
+          return (
+            <div key={msg.id} className="relative">
+              {/* Insertion line before each message */}
+              {!isReadonly && !isStreaming && (
+                <InsertionLine
+                  onInsertBefore={() => insertMessageBefore(msg.id, "user")}
+                />
+              )}
+              <MessageEditor
+                message={msg}
+                index={index}
+                allMessages={messages}
+                isReadonly={isReadonly}
+                isStreaming={isStreaming && msg.id === streamingMessageId}
               />
-            )}
-            <MessageEditor
-              message={msg}
-              index={index}
-              allMessages={messages}
-              isReadonly={isReadonly}
-              isStreaming={isStreaming && msg.id === streamingMessageId}
-            />
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* Add message button */}

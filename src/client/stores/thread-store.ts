@@ -62,6 +62,7 @@ export interface ThreadActions {
 
   // Run
   runCompletion(): Promise<void>;
+  runFromMessage(id: string): Promise<void>;
   stopCompletion(): void;
 
   // Timeline
@@ -439,6 +440,20 @@ export function createThreadStore() {
         set({ isStreaming: false, streamingMessageId: null });
         abortController = null;
       }
+    },
+
+    async runFromMessage(id: string) {
+      if (get().peekingEventId) return;
+      const idx = get().messages.findIndex((m) => m.id === id);
+      if (idx === -1) return;
+      // Remove all messages after this one
+      set((s) => ({
+        messages: s.messages.slice(0, idx + 1),
+        isDirty: true,
+      }));
+      get().appendHistoryEvent("revision", "run from message");
+      // Now run completion from the truncated state
+      await get().runCompletion();
     },
 
     stopCompletion() {
