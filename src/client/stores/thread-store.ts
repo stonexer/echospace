@@ -255,6 +255,7 @@ export function createThreadStore() {
         ),
         isDirty: true,
       }));
+      get().appendHistoryEvent("revision", "edited message");
     },
 
     updateMessageRole(id: string, role: EchoRole) {
@@ -265,6 +266,7 @@ export function createThreadStore() {
         ),
         isDirty: true,
       }));
+      get().appendHistoryEvent("revision", "changed message role");
     },
 
     removeMessage(id: string) {
@@ -308,13 +310,24 @@ export function createThreadStore() {
     // --- Run ---
 
     async runCompletion() {
-      const { messages, settings, peekingEventId } = get();
+      const { messages: allMessages, settings, peekingEventId } = get();
       if (peekingEventId) return; // Don't run while peeking
 
       const provider = settings.provider;
       if (!provider) {
         throw new Error("No provider selected");
       }
+
+      // Filter out empty system messages
+      const messages = allMessages.filter((m) => {
+        if (m.role !== "system") return true;
+        const text = m.parts
+          .filter((p) => p.type === "text")
+          .map((p) => p.text)
+          .join("")
+          .trim();
+        return text.length > 0;
+      });
 
       // Create placeholder assistant message
       const assistantMsg: EchoMessage = {
@@ -474,18 +487,13 @@ export function createThreadStore() {
       if (!event) return;
 
       // Use cached original state if already peeking, otherwise cache current
-      const original = cachedState ?? { messages: [...messages], settings: { ...settings } };
-
-      // Resolve messages from snapshot using the original (pre-peek) messages
-      const snapshotMessages = event.snapshot.message_ids
-        .map((mid) => original.messages.find((m) => m.id === mid))
-        .filter((m): m is EchoMessage => m != null);
+      const original = cachedState ?? { messages: structuredClone(messages), settings: { ...settings } };
 
       set({
         peekingEventId: id,
         isReadonly: true,
         cachedState: original,
-        messages: snapshotMessages,
+        messages: event.snapshot.messages,
         settings: event.snapshot.settings ?? original.settings,
       });
     },
@@ -504,19 +512,12 @@ export function createThreadStore() {
     },
 
     revertToEvent(id: string) {
-      const { historyEvents, cachedState, messages } = get();
+      const { historyEvents } = get();
       const event = historyEvents.find((e) => e.id === id);
       if (!event) return;
 
-      // Resolve messages from the source that has all messages
-      // (cachedState holds the original messages if we're currently peeking)
-      const allMessages = cachedState?.messages ?? messages;
-      const snapshotMessages = event.snapshot.message_ids
-        .map((mid) => allMessages.find((m) => m.id === mid))
-        .filter((m): m is EchoMessage => m != null);
-
       set({
-        messages: snapshotMessages,
+        messages: event.snapshot.messages,
         settings: event.snapshot.settings ?? get().settings,
         currentEventId: id,
         peekingEventId: null,
@@ -552,18 +553,17 @@ export function createThreadStore() {
       const { messages, settings, currentEventId, historyEvents, filePath } = get();
       const lastEvent = historyEvents[historyEvents.length - 1];
 
-      // If we're on the latest revision event and this is also a revision,
-      // update in place instead of creating a new event
+      // Consecutive revisions → update in place
       if (
+        type === "revision" &&
         lastEvent &&
         lastEvent.id === currentEventId &&
-        lastEvent.type === "revision" &&
-        type === "revision"
+        lastEvent.type === "revision"
       ) {
         const updated: EchoHistoryEvent = {
           ...lastEvent,
           snapshot: {
-            message_ids: messages.map((m) => m.id),
+            messages: structuredClone(messages),
             settings,
           },
           summary: summary ?? lastEvent.summary,
@@ -571,7 +571,6 @@ export function createThreadStore() {
         set((s) => ({
           historyEvents: [...s.historyEvents.slice(0, -1), updated],
         }));
-        // Persist update
         if (filePath) {
           const filename = filePath.split("/").pop() ?? filePath;
           fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
@@ -583,14 +582,44 @@ export function createThreadStore() {
         return;
       }
 
-      // Otherwise create a new event (branching from historical point, or after a run)
+      // Run after a revision → replace the revision with a run event
+      if (
+        type === "run" &&
+        lastEvent &&
+        lastEvent.id === currentEventId &&
+        lastEvent.type === "revision"
+      ) {
+        const upgraded: EchoHistoryEvent = {
+          ...lastEvent,
+          type: "run",
+          snapshot: {
+            messages: structuredClone(messages),
+            settings,
+          },
+          summary: summary ?? lastEvent.summary,
+        };
+        set((s) => ({
+          historyEvents: [...s.historyEvents.slice(0, -1), upgraded],
+        }));
+        if (filePath) {
+          const filename = filePath.split("/").pop() ?? filePath;
+          fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(upgraded),
+          }).catch(() => {});
+        }
+        return;
+      }
+
+      // Otherwise create a new event
       const event: EchoHistoryEvent = {
         kind: "event",
         id: nanoid(8),
         type,
         created_at: new Date().toISOString(),
         snapshot: {
-          message_ids: messages.map((m) => m.id),
+          messages: structuredClone(messages),
           settings,
         },
         parent: currentEventId ?? undefined,
@@ -604,7 +633,6 @@ export function createThreadStore() {
       const filename = filePath.split("/").pop() ?? filePath;
 
       if (newEvents.length > MAX_HISTORY_EVENTS) {
-        // Compact: drop oldest revision events, always keep run events
         const trimmed = trimHistory(newEvents, MAX_HISTORY_EVENTS);
         set({ historyEvents: trimmed });
         fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
@@ -613,7 +641,6 @@ export function createThreadStore() {
           body: JSON.stringify({ events: trimmed }),
         }).catch(() => {});
       } else {
-        // Append single event
         fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -626,21 +653,17 @@ export function createThreadStore() {
 
 /**
  * Trim history to maxSize, preferring to drop old revision events first.
- * Always keeps the most recent `maxSize` events, but when over limit,
- * drops the oldest revision events before dropping run events.
  */
 function trimHistory(events: EchoHistoryEvent[], maxSize: number): EchoHistoryEvent[] {
   if (events.length <= maxSize) return events;
 
   const excess = events.length - maxSize;
-  // Try to drop oldest revision events first
   const dropIndices = new Set<number>();
   for (let i = 0; i < events.length && dropIndices.size < excess; i++) {
     if (events[i].type === "revision") {
       dropIndices.add(i);
     }
   }
-  // If still over, drop oldest run events too
   for (let i = 0; i < events.length && dropIndices.size < excess; i++) {
     if (!dropIndices.has(i)) {
       dropIndices.add(i);

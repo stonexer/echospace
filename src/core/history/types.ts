@@ -12,8 +12,8 @@ export interface EchoHistoryEvent {
   type: "revision" | "run";
   created_at: string;
   snapshot: {
-    /** Ordered message IDs referencing messages in the .echo file */
-    message_ids: string[];
+    /** Full messages at this point in time */
+    messages: import("../echo/types").EchoMessage[];
     /** Settings at this point (if changed) */
     settings?: EchoSettings;
   };

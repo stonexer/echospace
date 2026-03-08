@@ -97,6 +97,16 @@ export function MessageEditor({
   const isInlinedToolMessage = isHiddenToolMessage(message, allMessages);
 
   const tokenEstimate = Math.ceil(text.length / 4);
+  const cumulativeTokens = allMessages
+    .slice(0, index + 1)
+    .reduce((sum, m) => {
+      const t = m.parts
+        .filter((p) => p.type === "text" || p.type === "thinking")
+        .map((p) => (p as { text: string }).text)
+        .join("")
+        .length;
+      return sum + Math.ceil(t / 4);
+    }, 0);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -256,7 +266,7 @@ export function MessageEditor({
 
           {/* Token counter + stats with tooltip */}
           <div className="group/stats relative flex items-center gap-1.5 font-mono text-[10px] text-text-placeholder">
-            <span>{tokenEstimate}/{tokenEstimate}</span>
+            <span>{tokenEstimate}/{cumulativeTokens}</span>
             {latency?.duration != null && (
               <span className="text-text-desc">
                 {(latency.duration / 1000).toFixed(1)}s

@@ -316,6 +316,7 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
       <ToolsSection
         tools={settings.tools ?? []}
         onUpdate={(tools) => updateSettings({ tools })}
+        tokenEstimate={Math.ceil(JSON.stringify(settings.tools ?? []).length / 4)}
       />
 
       {/* === System Prompt === */}
@@ -323,6 +324,9 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
         <div className="mb-2 flex items-center justify-between">
           <span className="font-serif text-[11px] italic text-text-desc">
             System prompt
+          </span>
+          <span className="font-mono text-[10px] text-text-placeholder">
+            {Math.ceil(systemText.length / 4)} tokens
           </span>
         </div>
         <textarea
@@ -366,10 +370,12 @@ function Section({
 
 function ToolsSection({
   tools,
-  onUpdate
+  onUpdate,
+  tokenEstimate
 }: {
   tools: EchoToolDefinition[];
   onUpdate: (tools: EchoToolDefinition[]) => void;
+  tokenEstimate: number;
 }) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -407,20 +413,27 @@ function ToolsSection({
     <Section
       title="Tools"
       extra={
-        <button
-          onClick={addTool}
-          className="flex items-center gap-1 text-[11px] text-text-desc transition-colors hover:text-text-secondary"
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path
-              d="M5 2v6M2 5h6"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-          </svg>
-          Add tool
-        </button>
+        <div className="flex items-center gap-2">
+          {tools.length > 0 && (
+            <span className="font-mono text-[10px] text-text-placeholder">
+              {tokenEstimate} tokens
+            </span>
+          )}
+          <button
+            onClick={addTool}
+            className="flex items-center gap-1 text-[11px] text-text-desc transition-colors hover:text-text-secondary"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path
+                d="M5 2v6M2 5h6"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+            </svg>
+            Add tool
+          </button>
+        </div>
       }
     >
       {tools.length === 0 ? (

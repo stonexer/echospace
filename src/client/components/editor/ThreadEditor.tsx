@@ -82,7 +82,7 @@ export function ThreadEditor() {
           </span>
           <div
             ref={timelineRef}
-            className="flex max-w-[240px] items-center gap-[3px] overflow-x-auto py-1 scrollbar-none"
+            className="flex max-w-[240px] items-center overflow-x-auto scrollbar-none"
             onMouseLeave={() => restoreFromPeek()}
           >
             {historyEvents.map((event) => {
@@ -96,18 +96,20 @@ export function ThreadEditor() {
                   onClick={() => revertToEvent(event.id)}
                   onMouseEnter={() => peekEvent(event.id)}
                   title={event.summary ?? `${event.type} — ${event.created_at}`}
-                  className={`shrink-0 rounded-full transition-all ${
+                  className="group flex shrink-0 items-center justify-center p-[3px]"
+                >
+                  <span className={`block shrink-0 rounded-full transition-all ${
                     isCurrent
-                      ? 'size-[9px] bg-primary'
+                      ? 'size-[11px] bg-primary'
                       : isPeeking
-                        ? 'size-[8px] bg-primary/50'
+                        ? 'size-[10px] bg-primary/50'
                         : isHighlighted
-                          ? 'size-[9px] bg-amber-500 hover:bg-amber-400'
+                          ? 'size-[11px] bg-amber-500 group-hover:bg-amber-400'
                           : isRun
-                            ? 'size-[7px] bg-[var(--success)]/60 hover:bg-[var(--success)]'
-                            : 'size-[7px] bg-bg-5 hover:bg-text-desc'
-                  }`}
-                />
+                            ? 'size-[9px] bg-[var(--success)]/60 group-hover:bg-[var(--success)]'
+                            : 'size-[9px] bg-bg-5 group-hover:bg-text-desc'
+                  }`} />
+                </button>
               );
             })}
           </div>
