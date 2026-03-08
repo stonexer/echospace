@@ -1,11 +1,16 @@
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { serveStatic } from "@hono/node-server/serve-static";
 import { chatRoutes } from "./routes/chat";
 import { fileRoutes } from "./routes/files";
 import { configRoutes } from "./routes/config";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDir = path.resolve(__dirname, "../client");
 
 export function createServer(options: {
   workspaceDir: string;
@@ -22,11 +27,11 @@ export function createServer(options: {
   app.route("/api/chat", chatRoutes(options));
   app.route("/api/config", configRoutes(options));
 
-  // Static files (Vite build output)
-  app.use("/*", serveStatic({ root: "./dist/client" }));
+  // Static files (Vite build output) — use absolute path so global installs work
+  app.use("/*", serveStatic({ root: clientDir }));
 
   // SPA fallback
-  app.get("*", serveStatic({ root: "./dist/client", path: "index.html" }));
+  app.get("*", serveStatic({ root: clientDir, path: "index.html" }));
 
   return app;
 }

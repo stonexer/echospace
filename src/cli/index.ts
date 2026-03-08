@@ -8,6 +8,8 @@ import open from "open";
 import { ensureConfig } from "../server/services/config";
 import { startServer } from "../server/index";
 
+const VERSION = process.env.npm_package_version ?? "0.0.0";
+
 const CONFIG_DIR = path.join(homedir(), ".echo-space");
 
 /** Load .env file into process.env (simple key=value parser) */
@@ -33,7 +35,7 @@ const program = new Command();
 program
   .name("echo-space")
   .description("The best open-source local prompt debugging tool")
-  .version("0.1.0")
+  .version(VERSION)
   .argument("[workdir]", "Workspace directory", ".")
   .option("-p, --port <port>", "Port to serve on")
   .option("--no-open", "Don't open browser automatically")
@@ -61,7 +63,7 @@ program
 
     console.log(`
   ╔══════════════════════════════════════╗
-  ║           Echo Space v0.1.0          ║
+  ║           Echo Space v${VERSION.padEnd(12)}║
   ╠══════════════════════════════════════╣
   ║  Workspace: ${workspaceDir.padEnd(24)}║
   ║  URL:       http://localhost:${String(port).padEnd(8)}║
