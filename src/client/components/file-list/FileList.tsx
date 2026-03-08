@@ -34,9 +34,46 @@ export function FileList({
     <aside className="flex w-full shrink-0 flex-col bg-bg-1">
       {/* Section header */}
       <div className="flex h-9 items-center justify-between px-3">
-        <span className="font-serif text-[11px] text-text-desc">
-          Explorer
-        </span>
+        <div className="flex items-center gap-1.5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="131 131 250 250"
+            width="11"
+            height="11"
+            className="text-text-desc"
+          >
+            <style>{`
+              @keyframes es-hover-cw {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+              @keyframes es-hover-ccw {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(-360deg); }
+              }
+              .es-logo-outer, .es-logo-inner {
+                transform-origin: 256px 256px;
+              }
+              svg:hover .es-logo-outer {
+                animation: es-hover-cw 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+              }
+              svg:hover .es-logo-inner {
+                animation: es-hover-ccw 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+              }
+            `}</style>
+            <g className="es-logo-outer">
+              <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="currentColor" opacity="0.35" />
+              <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="var(--bg-1)" />
+            </g>
+            <g className="es-logo-inner">
+              <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="currentColor" opacity="0.35" />
+              <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="var(--bg-1)" />
+            </g>
+          </svg>
+          <span className="font-serif text-[11px] text-text-desc">
+            Explorer
+          </span>
+        </div>
         <button
           onClick={() => setIsCreating(true)}
           className="flex size-5 items-center justify-center rounded text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
