@@ -78,7 +78,7 @@ records.
 | `text`        | `type: "text"`, `text`           | —                          |
 | `thinking`    | `type: "thinking"`, `text`       | —                          |
 | `tool_call`   | `type: "tool_call"`, `id`, `name`, `input` | —              |
-| `tool_result` | `type: "tool_result"`, `id`, `output` | `is_error`            |
+| `tool_result` | `type: "tool_result"`, `tool_call_id`, `output` | `is_error`            |
 | `image`       | `type: "image"`                  | `url`, `base64`, `media_type` |
 
 Full TypeScript definitions are bundled in `references/types.ref.ts`.
@@ -270,7 +270,7 @@ If your app supports tool/function calling, map them to multi-part messages:
   role: "tool",
   created_at: "2025-06-01T12:00:04Z",
   parts: [
-    { type: "tool_result", id: "call_1", output: { temperature: 22 } }
+    { type: "tool_result", tool_call_id: "call_1", output: { temperature: 22 } }
   ]
 }
 ```

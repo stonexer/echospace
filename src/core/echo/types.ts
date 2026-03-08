@@ -29,7 +29,7 @@ export interface ToolCallPart {
 
 export interface ToolResultPart {
   type: "tool_result";
-  id: string;
+  tool_call_id: string;
   output: unknown;
   is_error?: boolean;
 }

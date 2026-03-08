@@ -71,7 +71,7 @@ Examples:
       - `functionCall` → tool_call, `functionResponse` → tool_result
 
       **Vercel AI SDK:**
-      - Part type mapping: `tool-call` → `tool_call` (`toolCallId` → `id`, `toolName` → `name`), `tool-result` → `tool_result` (unwrap `{ type: "json", value }` wrappers), `reasoning` → `thinking`
+      - Part type mapping: `tool-call` → `tool_call` (`toolCallId` → `id`, `toolName` → `name`), `tool-result` → `tool_result` (`toolCallId` → `tool_call_id`, unwrap `{ type: "json", value }` wrappers), `reasoning` → `thinking`
       - Append response choices as final assistant message with model/usage metadata
 
       **Raw text:**

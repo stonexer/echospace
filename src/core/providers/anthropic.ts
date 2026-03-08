@@ -28,7 +28,7 @@ function toAnthropicContent(
       case "tool_result":
         blocks.push({
           type: "tool_result",
-          tool_use_id: part.id,
+          tool_use_id: part.tool_call_id,
           content: typeof part.output === "string"
             ? part.output
             : JSON.stringify(part.output),

@@ -85,8 +85,8 @@ export function MessageEditor({
           if (m.role !== "tool") break;
           for (let pi = 0; pi < m.parts.length; pi++) {
             const p = m.parts[pi];
-            if (p.type === "tool_result" && p.id) {
-              results.set(p.id, { msg: m, partIndex: pi });
+            if (p.type === "tool_result" && p.tool_call_id) {
+              results.set(p.tool_call_id, { msg: m, partIndex: pi });
             }
           }
         }

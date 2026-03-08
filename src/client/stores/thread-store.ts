@@ -224,7 +224,7 @@ export function createThreadStore() {
         id: nanoid(8),
         role: "tool",
         created_at: new Date().toISOString(),
-        parts: [{ type: "tool_result", id: toolCallId, output: "" }],
+        parts: [{ type: "tool_result", tool_call_id: toolCallId, output: "" }],
       };
       set((s) => {
         const idx = s.messages.findIndex((m) => m.id === afterMessageId);

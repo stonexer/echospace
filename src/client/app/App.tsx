@@ -114,13 +114,22 @@ export function App() {
     }
 
     const safeName = title.replace(/[^a-zA-Z0-9_\-\u4e00-\u9fff]/g, '_').slice(0, 60);
-    const filename = `${safeName}.echo`;
+    let filename = `${safeName}.echo`;
 
-    const ok = await workspaceStore.getState().createFileFromRaw(filename, ndjson);
+    // Retry with incremented suffix if file already exists
+    let ok = await workspaceStore.getState().createFileFromRaw(filename, ndjson);
+    if (!ok) {
+      for (let i = 2; i <= 99; i++) {
+        filename = `${safeName}_${i}.echo`;
+        ok = await workspaceStore.getState().createFileFromRaw(filename, ndjson);
+        if (ok) break;
+      }
+    }
+
     if (ok) {
       toast.success(`Imported as ${filename}`);
     } else {
-      toast.error('Failed to create file (may already exist)');
+      toast.error('Failed to create file');
     }
     return ok;
   }, []);

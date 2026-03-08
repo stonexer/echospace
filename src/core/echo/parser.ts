@@ -45,7 +45,7 @@ export function parseEcho(raw: string): EchoConversation {
  * Handles common deviations from external sources:
  * - Missing `id` → generate one
  * - `ts` / `timestamp` → `created_at`
- * - tool_result `tool_call_id` / `tool_use_id` → `id`
+ * - tool_result `id` / `tool_use_id` → `tool_call_id`
  */
 function normalizeMessage(message: EchoMessage): EchoMessage {
   const raw = message as unknown as Record<string, unknown>;
@@ -61,11 +61,11 @@ function normalizeMessage(message: EchoMessage): EchoMessage {
     msg = { ...msg, created_at: (raw.ts ?? raw.timestamp) as string };
   }
 
-  // Normalize tool_result parts
+  // Normalize tool_result parts: migrate legacy `id` or `tool_use_id` → `tool_call_id`
   const needsPartNormalization = msg.parts.some((p) => {
     if (p.type !== "tool_result") return false;
     const r = p as unknown as Record<string, unknown>;
-    return !r.id && (r.tool_call_id || r.tool_use_id);
+    return !r.tool_call_id && (r.id || r.tool_use_id);
   });
 
   if (needsPartNormalization) {
@@ -74,9 +74,9 @@ function normalizeMessage(message: EchoMessage): EchoMessage {
       parts: msg.parts.map((p) => {
         if (p.type !== "tool_result") return p;
         const r = p as unknown as Record<string, unknown>;
-        if (!r.id && (r.tool_call_id || r.tool_use_id)) {
-          const { tool_call_id, tool_use_id, ...rest } = r;
-          return { ...rest, id: (tool_call_id ?? tool_use_id) as string } as typeof p;
+        if (!r.tool_call_id && (r.id || r.tool_use_id)) {
+          const { id, tool_use_id, ...rest } = r;
+          return { ...rest, tool_call_id: (id ?? tool_use_id) as string } as typeof p;
         }
         return p;
       }),

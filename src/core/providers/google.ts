@@ -26,7 +26,7 @@ function toGeminiContent(msg: EchoMessage): Record<string, unknown> {
       case "tool_result":
         parts.push({
           functionResponse: {
-            name: part.id,
+            name: part.tool_call_id,
             response: { result: part.output },
           },
         });

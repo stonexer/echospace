@@ -18,7 +18,7 @@ function toOpenAIMessage(msg: EchoMessage): Record<string, unknown> {
       typeof tr.output === "string"
         ? tr.output
         : JSON.stringify(tr.output);
-    result.tool_call_id = tr.id;
+    result.tool_call_id = tr.tool_call_id;
     return result;
   }
 
