@@ -63,30 +63,14 @@ program
       : await getPort({ port: portNumbers(3240, 3249) });
 
     const url = `http://localhost:${port}`;
-    const lines = [
-      `回 EchoSpace v${VERSION}`,
-      `Workspace: ${workspaceDir}`,
-      `URL:       ${url}`,
-    ];
-    // Count display width (CJK/fullwidth = 2 columns)
-    const dw = (s: string) => [...s].reduce((n, c) => n + (c.charCodeAt(0) > 0x7f ? 2 : 1), 0);
-    const w = Math.max(...lines.map(dw)) + 4;
-    const top = `  ╔${"═".repeat(w)}╗`;
-    const mid = `  ╠${"═".repeat(w)}╣`;
-    const bot = `  ╚${"═".repeat(w)}╝`;
-    const pad = (s: string) => `  ║  ${s}${" ".repeat(w - 2 - dw(s))}║`;
-    const center = (s: string) => {
-      const sw = dw(s);
-      const left = Math.floor((w - sw) / 2);
-      return `  ║${" ".repeat(left)}${s}${" ".repeat(w - left - sw)}║`;
-    };
     console.log(`
-${top}
-${center(lines[0])}
-${mid}
-${pad(lines[1])}
-${pad(lines[2])}
-${bot}
+  ██████████████
+  ██          ██   EchoSpace v${VERSION}
+  ██  ██████  ██
+  ██  ██  ██  ██   Workspace  ${workspaceDir}
+  ██  ██████  ██   URL        ${url}
+  ██          ██
+  ██████████████
 `);
 
     const isDev = process.env.NODE_ENV !== "production" && import.meta.url.includes("/src/");
