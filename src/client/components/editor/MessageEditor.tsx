@@ -223,7 +223,7 @@ export function MessageEditor({
 
       {/* Drag handle */}
       <div
-        className={`absolute top-[7px] -left-[1px] opacity-0 transition-opacity ${
+        className={`absolute top-[7px] left-[3px] opacity-0 transition-opacity ${
           !isReadonly ? "max-md:opacity-100 md:group-hover:opacity-100" : "pointer-events-none"
         }`}
       >
@@ -244,22 +244,64 @@ export function MessageEditor({
             {message.role.charAt(0).toUpperCase() + message.role.slice(1)}
           </button>
 
-          {/* Token counter */}
-          <span className="font-mono text-[10px] text-text-placeholder" title="Tokens in this message / cumulative">
-            {tokenEstimate}/{tokenEstimate}
-          </span>
+          {/* Token counter + stats with tooltip */}
+          <div className="group/stats relative flex items-center gap-1.5 font-mono text-[10px] text-text-placeholder">
+            <span>{tokenEstimate}/{tokenEstimate}</span>
+            {latency?.duration != null && (
+              <span className="text-text-desc">
+                {(latency.duration / 1000).toFixed(1)}s
+              </span>
+            )}
+            {usage && (
+              <span className="text-text-desc">
+                {usage.input_tokens ?? 0} → {usage.output_tokens ?? 0}
+              </span>
+            )}
 
-          {/* Latency / usage inline */}
-          {latency?.duration != null && (
-            <span className="text-[10px] text-text-desc">
-              {(latency.duration / 1000).toFixed(1)}s
-            </span>
-          )}
-          {usage && (
-            <span className="text-[10px] text-text-desc">
-              {usage.input_tokens ?? 0} → {usage.output_tokens ?? 0}
-            </span>
-          )}
+            {/* Tooltip */}
+            {(usage || latency?.duration != null) && (
+              <div className="pointer-events-none absolute top-full left-0 z-50 mt-1 min-w-[180px] rounded-md border border-border bg-bg-2 px-2.5 py-2 text-[11px] leading-[18px] text-text-secondary opacity-0 shadow-lg transition-opacity group-hover/stats:pointer-events-auto group-hover/stats:opacity-100">
+                <table className="w-full text-left">
+                  <tbody>
+                    <tr>
+                      <td className="pr-4 text-text-desc">Tokens (est.)</td>
+                      <td className="text-right font-mono font-medium">{tokenEstimate}</td>
+                    </tr>
+                    {usage && (
+                      <>
+                        <tr>
+                          <td className="pr-4 text-text-desc">Input tokens</td>
+                          <td className="text-right font-mono font-medium">{usage.input_tokens ?? 0}</td>
+                        </tr>
+                        <tr>
+                          <td className="pr-4 text-text-desc">Output tokens</td>
+                          <td className="text-right font-mono font-medium">{usage.output_tokens ?? 0}</td>
+                        </tr>
+                      </>
+                    )}
+                    {latency?.duration != null && (
+                      <>
+                        <tr>
+                          <td className="border-t border-border pt-1 pr-4 text-text-desc">Latency</td>
+                          <td className="border-t border-border pt-1 text-right font-mono font-medium">
+                            {(latency.duration / 1000).toFixed(1)}s
+                          </td>
+                        </tr>
+                        {latency.ttft != null && (
+                          <tr>
+                            <td className="pr-4 text-text-desc">TTFT</td>
+                            <td className="text-right font-mono font-medium">
+                              {(latency.ttft / 1000).toFixed(1)}s
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Collapsed preview — clickable to expand */}
@@ -268,7 +310,7 @@ export function MessageEditor({
           onClick={() => setCollapsed(!collapsed)}
         >
           <div
-            className={`flex h-4 w-full items-center overflow-hidden px-2 text-[11px] text-text-desc transition-all ${
+            className={`flex h-4 w-full items-center overflow-hidden px-2 text-[11px] text-text-desc transition-all truncate whitespace-nowrap ${
               collapsed ? "opacity-100" : "translate-y-1 opacity-0"
             }`}
           >
