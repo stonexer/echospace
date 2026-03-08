@@ -76,7 +76,42 @@ export function FileList({
         )}
 
         {isLoading ? (
-          <div className="px-3 py-2 text-[12px] text-text-desc">Loading...</div>
+          <div className="flex items-center gap-1.5 px-3 py-2 text-[12px] text-text-desc">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="131 131 250 250"
+              width="16"
+              height="16"
+            >
+              <style>{`
+                @keyframes es-spin-cw {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+                @keyframes es-spin-ccw {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(-360deg); }
+                }
+                .es-loading-outer {
+                  transform-origin: 256px 256px;
+                  animation: es-spin-cw 4s linear infinite;
+                }
+                .es-loading-inner {
+                  transform-origin: 256px 256px;
+                  animation: es-spin-ccw 3s linear infinite;
+                }
+              `}</style>
+              <g className="es-loading-outer">
+                <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="#BB4B03" />
+                <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="#F2E2C1" />
+              </g>
+              <g className="es-loading-inner">
+                <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="#BB4B03" />
+                <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="#F2E2C1" />
+              </g>
+            </svg>
+            Loading...
+          </div>
         ) : files.length === 0 ? (
           <div className="px-3 py-2 text-[12px] text-text-desc">
             No .echo files

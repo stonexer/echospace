@@ -21,6 +21,8 @@ export interface EchoHistoryEvent {
   parent?: string;
   /** Human-readable summary, e.g. "edited system prompt", "ran gpt-4o" */
   summary?: string;
+  /** User-highlighted milestone */
+  highlighted?: boolean;
 }
 
 /**

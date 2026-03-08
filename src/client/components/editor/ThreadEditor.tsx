@@ -24,7 +24,8 @@ export function ThreadEditor() {
     settings,
     peekEvent,
     restoreFromPeek,
-    revertToEvent
+    revertToEvent,
+    toggleHighlight
   } = useStore(store);
 
   // Auto-scroll timeline to latest event
@@ -56,6 +57,12 @@ export function ThreadEditor() {
   const systemMessage = messages.find((m) => m.role === 'system');
   const chatMessages = messages.filter((m) => m.role !== 'system');
 
+  // Auto-scroll timeline to the right (most recent)
+  useEffect(() => {
+    const el = timelineRef.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, [historyEvents.length]);
+
   const handleRun = useCallback(async () => {
     try {
       await runCompletion();
@@ -75,27 +82,30 @@ export function ThreadEditor() {
           </span>
           <div
             ref={timelineRef}
-            className="flex min-w-0 flex-1 flex-wrap items-center gap-[3px]"
+            className="flex max-w-[240px] items-center gap-[3px] overflow-x-auto py-1 scrollbar-none"
             onMouseLeave={() => restoreFromPeek()}
           >
             {historyEvents.map((event) => {
               const isCurrent = event.id === currentEventId;
               const isPeeking = event.id === peekingEventId;
               const isRun = event.type === 'run';
+              const isHighlighted = event.highlighted;
               return (
                 <button
                   key={event.id}
                   onClick={() => revertToEvent(event.id)}
                   onMouseEnter={() => peekEvent(event.id)}
                   title={event.summary ?? `${event.type} — ${event.created_at}`}
-                  className={`size-[7px] shrink-0 rounded-full transition-all ${
+                  className={`shrink-0 rounded-full transition-all ${
                     isCurrent
-                      ? 'bg-primary scale-[1.4]'
+                      ? 'size-[9px] bg-primary'
                       : isPeeking
-                        ? 'bg-text-normal scale-[1.6]'
-                        : isRun
-                          ? 'bg-[#5a7e45]/60 hover:bg-[#5a7e45]'
-                          : 'bg-bg-5 hover:bg-text-desc'
+                        ? 'size-[8px] bg-primary/50'
+                        : isHighlighted
+                          ? 'size-[9px] bg-amber-500 hover:bg-amber-400'
+                          : isRun
+                            ? 'size-[7px] bg-[#5a7e45]/60 hover:bg-[#5a7e45]'
+                            : 'size-[7px] bg-bg-5 hover:bg-text-desc'
                   }`}
                 />
               );
@@ -110,6 +120,22 @@ export function ThreadEditor() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
+          {currentEventId && (
+            <button
+              onClick={() => toggleHighlight(currentEventId)}
+              title="Highlight current version"
+              className={`flex h-7 items-center justify-center gap-1 rounded px-2 text-[12px] font-medium transition-colors ${
+                historyEvents.find((e) => e.id === currentEventId)?.highlighted
+                  ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25'
+                  : 'bg-bg-3 text-text-desc hover:bg-bg-4 hover:text-text-secondary'
+              }`}
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                <path d="M5 0.5l1.3 2.9 3.2.5-2.3 2.2.5 3.2L5 7.6 2.3 9.3l.5-3.2L.5 3.9l3.2-.5z" />
+              </svg>
+              Star
+            </button>
+          )}
           {isStreaming ? (
             <button
               onClick={stopCompletion}

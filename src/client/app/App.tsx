@@ -198,10 +198,48 @@ export function App() {
         ) : (
           <div className="flex flex-1 items-center justify-center bg-bg-1-1">
             <div className="text-center">
-              <div className="font-serif text-[16px] italic text-text-secondary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="131 131 250 250"
+                width="40"
+                height="40"
+                className="mx-auto"
+              >
+                <style>{`
+                  @keyframes es-spin-in-cw {
+                    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+                    60% { opacity: 1; }
+                    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+                  }
+                  @keyframes es-spin-in-ccw {
+                    0% { transform: scale(0) rotate(45deg); opacity: 0; }
+                    60% { opacity: 1; }
+                    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+                  }
+                  .es-entrance-outer {
+                    transform-origin: 256px 256px;
+                    opacity: 0;
+                    animation: es-spin-in-cw 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+                  }
+                  .es-entrance-inner {
+                    transform-origin: 256px 256px;
+                    opacity: 0;
+                    animation: es-spin-in-ccw 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s forwards;
+                  }
+                `}</style>
+                <g className="es-entrance-outer">
+                  <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="#BB4B03" />
+                  <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="#F2E2C1" />
+                </g>
+                <g className="es-entrance-inner">
+                  <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="#BB4B03" />
+                  <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="#F2E2C1" />
+                </g>
+              </svg>
+              <div className="mt-2.5 font-serif text-[18px] italic text-text-secondary">
                 EchoSpace
               </div>
-              <div className="mt-1.5 text-[12px] text-text-desc">
+              <div className="mt-1.5 text-[13px] text-text-desc">
                 Open or create an .echo file to start
               </div>
             </div>

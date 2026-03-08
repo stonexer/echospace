@@ -6,7 +6,7 @@ import type { EchoHistory, EchoHistoryEvent } from "./types";
 export function parseHistory(raw: string): EchoHistory {
   const lines = raw.split("\n").filter((line) => line.trim().length > 0);
 
-  const events = lines.map((line, i) => {
+  const parsed = lines.map((line, i) => {
     try {
       return JSON.parse(line) as EchoHistoryEvent;
     } catch {
@@ -14,10 +14,14 @@ export function parseHistory(raw: string): EchoHistory {
     }
   });
 
-  return {
-    events,
-    eventMap: new Map(events.map((e) => [e.id, e])),
-  };
+  // Deduplicate by ID, keeping the last occurrence (which is the updated version)
+  const eventMap = new Map<string, EchoHistoryEvent>();
+  for (const e of parsed) {
+    eventMap.set(e.id, e);
+  }
+  const events = [...eventMap.values()];
+
+  return { events, eventMap };
 }
 
 /**

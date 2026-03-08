@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <style>
+    @keyframes spin-cw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-ccw {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+    .outer {
+      transform-origin: 256px 256px;
+      animation: spin-cw 4s linear infinite;
+    }
+    .inner {
+      transform-origin: 256px 256px;
+      animation: spin-ccw 3s linear infinite;
+    }
+  </style>
+  <rect width="512" height="512" fill="#F6E9D8"/>
+  <g class="outer">
+    <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="#BB4B03"/>
+    <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="#F2E2C1"/>
+  </g>
+  <g class="inner">
+    <rect x="198" y="198" width="116" height="116" rx="18.3" ry="18.3" fill="#BB4B03"/>
+    <rect x="226.3" y="226.3" width="59.3" height="59.3" rx="9.3" ry="9.3" fill="#F2E2C1"/>
+  </g>
+</svg>

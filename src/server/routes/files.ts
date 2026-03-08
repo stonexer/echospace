@@ -2,7 +2,8 @@ import { Hono } from "hono";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { parseEcho, serializeEcho } from "../../core/echo";
-import { parseHistory, serializeEvent } from "../../core/history";
+import { parseHistory, serializeEvent, serializeHistory } from "../../core/history";
+import type { EchoHistoryEvent } from "../../core/history";
 
 interface FileRouteOptions {
   workspaceDir: string;
@@ -146,6 +147,27 @@ export function fileRoutes(options: FileRouteOptions) {
       return c.json({ events: history.events });
     } catch {
       return c.json({ events: [] });
+    }
+  });
+
+  // Compact/rewrite history for a file
+  app.put("/:filename/history", async (c) => {
+    const filename = c.req.param("filename");
+    const historyPath = path.join(
+      options.workspaceDir,
+      filename + "-history",
+    );
+    const { events } = await c.req.json<{ events: EchoHistoryEvent[] }>();
+
+    try {
+      const history = { events, eventMap: new Map(events.map((e) => [e.id, e])) };
+      await fs.writeFile(historyPath, serializeHistory(history), "utf-8");
+      return c.json({ ok: true });
+    } catch (err) {
+      return c.json(
+        { error: `Failed to compact history: ${(err as Error).message}` },
+        500,
+      );
     }
   });
 

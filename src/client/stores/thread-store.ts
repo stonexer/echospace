@@ -9,6 +9,8 @@ import type {
 } from "~/core/echo/types";
 import type { EchoHistoryEvent } from "~/core/history/types";
 
+const MAX_HISTORY_EVENTS = 100;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -70,6 +72,7 @@ export interface ThreadActions {
   restoreFromPeek(): void;
   revertToEvent(id: string): void;
   appendHistoryEvent(type: "revision" | "run", summary?: string): void;
+  toggleHighlight(id: string): void;
 }
 
 export type ThreadStore = ThreadState & ThreadActions;
@@ -464,28 +467,26 @@ export function createThreadStore() {
     // --- Timeline ---
 
     peekEvent(id: string) {
-      const { messages, settings, peekingEventId, historyEvents } = get();
-      if (peekingEventId) return; // Already peeking
+      const { messages, settings, peekingEventId, cachedState, historyEvents } = get();
+      if (peekingEventId === id) return; // Already peeking this event
 
       const event = historyEvents.find((e) => e.id === id);
       if (!event) return;
 
-      // Cache current state
-      set({
-        peekingEventId: id,
-        isReadonly: true,
-        cachedState: { messages: [...messages], settings: { ...settings } },
-      });
+      // Use cached original state if already peeking, otherwise cache current
+      const original = cachedState ?? { messages: [...messages], settings: { ...settings } };
 
-      // Resolve messages from snapshot
-      // Messages are in the same .echo file, referenced by ID
+      // Resolve messages from snapshot using the original (pre-peek) messages
       const snapshotMessages = event.snapshot.message_ids
-        .map((mid) => messages.find((m) => m.id === mid))
+        .map((mid) => original.messages.find((m) => m.id === mid))
         .filter((m): m is EchoMessage => m != null);
 
       set({
+        peekingEventId: id,
+        isReadonly: true,
+        cachedState: original,
         messages: snapshotMessages,
-        settings: event.snapshot.settings ?? settings,
+        settings: event.snapshot.settings ?? original.settings,
       });
     },
 
@@ -523,6 +524,28 @@ export function createThreadStore() {
         isReadonly: false,
         isDirty: true,
       });
+    },
+
+    toggleHighlight(id: string) {
+      const { historyEvents, filePath } = get();
+      const idx = historyEvents.findIndex((e) => e.id === id);
+      if (idx === -1) return;
+
+      const event = historyEvents[idx];
+      const updated = { ...event, highlighted: !event.highlighted };
+      const newEvents = [...historyEvents];
+      newEvents[idx] = updated;
+      set({ historyEvents: newEvents });
+
+      // Persist update
+      if (filePath) {
+        const filename = filePath.split("/").pop() ?? filePath;
+        fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        }).catch(() => {});
+      }
     },
 
     appendHistoryEvent(type: "revision" | "run", summary?: string) {
@@ -574,14 +597,23 @@ export function createThreadStore() {
         summary,
       };
 
-      set((s) => ({
-        historyEvents: [...s.historyEvents, event],
-        currentEventId: event.id,
-      }));
+      const newEvents = [...historyEvents, event];
+      set({ historyEvents: newEvents, currentEventId: event.id });
 
-      // Persist to sidecar (fire-and-forget)
-      if (filePath) {
-        const filename = filePath.split("/").pop() ?? filePath;
+      if (!filePath) return;
+      const filename = filePath.split("/").pop() ?? filePath;
+
+      if (newEvents.length > MAX_HISTORY_EVENTS) {
+        // Compact: drop oldest revision events, always keep run events
+        const trimmed = trimHistory(newEvents, MAX_HISTORY_EVENTS);
+        set({ historyEvents: trimmed });
+        fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ events: trimmed }),
+        }).catch(() => {});
+      } else {
+        // Append single event
         fetch(`/api/files/${encodeURIComponent(filename)}/history`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -590,4 +622,30 @@ export function createThreadStore() {
       }
     },
   }));
+}
+
+/**
+ * Trim history to maxSize, preferring to drop old revision events first.
+ * Always keeps the most recent `maxSize` events, but when over limit,
+ * drops the oldest revision events before dropping run events.
+ */
+function trimHistory(events: EchoHistoryEvent[], maxSize: number): EchoHistoryEvent[] {
+  if (events.length <= maxSize) return events;
+
+  const excess = events.length - maxSize;
+  // Try to drop oldest revision events first
+  const dropIndices = new Set<number>();
+  for (let i = 0; i < events.length && dropIndices.size < excess; i++) {
+    if (events[i].type === "revision") {
+      dropIndices.add(i);
+    }
+  }
+  // If still over, drop oldest run events too
+  for (let i = 0; i < events.length && dropIndices.size < excess; i++) {
+    if (!dropIndices.has(i)) {
+      dropIndices.add(i);
+    }
+  }
+
+  return events.filter((_, i) => !dropIndices.has(i));
 }
