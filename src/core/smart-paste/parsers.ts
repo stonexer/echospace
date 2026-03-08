@@ -3,13 +3,29 @@ import type { EchoMessage, EchoPart, EchoRole } from "../echo/types";
 
 /**
  * Parse OpenAI-format messages into EchoMessages.
- * Handles both `messages[]` array and `{ messages: [...] }` object.
+ * Handles: `messages[]` array, `{ messages: [...] }`, and
+ * Helicone wrapper `{ request: { messages: [...] }, response: { ... } }`.
  */
 export function parseOpenAI(input: string): EchoMessage[] {
   const parsed = JSON.parse(input);
-  const messages: Array<Record<string, unknown>> = Array.isArray(parsed)
-    ? parsed
-    : parsed.messages ?? [];
+
+  // Unwrap Helicone { request, response } wrapper
+  const source = parsed.request?.messages ? parsed.request : parsed;
+
+  const requestMessages: Array<Record<string, unknown>> = Array.isArray(source)
+    ? source
+    : source.messages ?? [];
+
+  // Collect all messages: request messages + response message(s)
+  const messages = [...requestMessages];
+  const respMessages = parsed.response?.messages ?? parsed.response?.choices;
+  if (Array.isArray(respMessages)) {
+    for (const item of respMessages) {
+      // choices format: { message: { role, content } }
+      // messages format: { role, content }
+      messages.push(item.message ?? item);
+    }
+  }
 
   return messages.map((msg) => {
     const parts: EchoPart[] = [];
@@ -230,6 +246,126 @@ export function parseGoogle(input: string): EchoMessage[] {
   }
 
   return result;
+}
+
+/**
+ * Parse Vercel AI SDK format (Helicone export) into EchoMessages.
+ * Structure: { request: { prompt: [...], tools: [...] }, response: { choices, model, usage } }
+ *
+ * Part type mapping:
+ *   tool-call  → tool_call   (toolCallId → id, toolName → name)
+ *   tool-result → tool_result (toolCallId → id, output may be { type, value } wrapper)
+ */
+export function parseVercel(input: string): EchoMessage[] {
+  const parsed = JSON.parse(input);
+  const prompt: Array<Record<string, unknown>> = parsed.request?.prompt ?? [];
+  const response = parsed.response as Record<string, unknown> | undefined;
+
+  const result: EchoMessage[] = [];
+
+  for (const msg of prompt) {
+    const role = (msg.role as EchoRole) ?? "user";
+    const parts = convertVercelParts(msg.content);
+
+    result.push({
+      kind: "message",
+      id: nanoid(8),
+      role,
+      created_at: new Date().toISOString(),
+      parts,
+    });
+  }
+
+  // Append the response as the final assistant message
+  if (response?.choices && Array.isArray(response.choices)) {
+    const choice = (response.choices as Array<Record<string, unknown>>)[0];
+    const respMsg = choice?.message as Record<string, unknown> | undefined;
+    if (respMsg) {
+      const parts = convertVercelParts(respMsg.content);
+      if (parts.length > 0) {
+        result.push({
+          kind: "message",
+          id: nanoid(8),
+          role: "assistant",
+          created_at: new Date().toISOString(),
+          parts,
+          meta: {
+            model: response.model as string | undefined,
+            usage: response.usage
+              ? {
+                  input_tokens: (response.usage as Record<string, number>)
+                    .promptTokens,
+                  output_tokens: (response.usage as Record<string, number>)
+                    .completionTokens,
+                }
+              : undefined,
+          },
+        });
+      }
+    }
+  }
+
+  return result;
+}
+
+function convertVercelParts(content: unknown): EchoPart[] {
+  const parts: EchoPart[] = [];
+
+  if (typeof content === "string") {
+    parts.push({ type: "text", text: content });
+    return parts;
+  }
+
+  if (!Array.isArray(content)) return parts;
+
+  for (const block of content as Array<Record<string, unknown>>) {
+    switch (block.type) {
+      case "text":
+        parts.push({ type: "text", text: block.text as string });
+        break;
+      case "tool-call":
+        parts.push({
+          type: "tool_call",
+          id: (block.toolCallId as string) ?? nanoid(8),
+          name: (block.toolName as string) ?? "",
+          input: block.input ?? block.args ?? {},
+        });
+        break;
+      case "tool-result": {
+        // output may be wrapped: { type: "json", value: X } → unwrap to X
+        let output: unknown = block.output ?? block.result ?? "";
+        if (
+          output &&
+          typeof output === "object" &&
+          (output as Record<string, unknown>).type === "json"
+        ) {
+          output = (output as Record<string, unknown>).value ?? output;
+        }
+        parts.push({
+          type: "tool_result",
+          id: (block.toolCallId as string) ?? "",
+          output,
+        });
+        break;
+      }
+      case "image":
+        parts.push({
+          type: "image",
+          url: block.url as string | undefined,
+          base64: block.base64 as string | undefined,
+          media_type: block.mediaType as string | undefined,
+        });
+        break;
+      case "reasoning":
+        parts.push({
+          type: "thinking",
+          text: (block.text as string) ?? "",
+        });
+        break;
+    }
+  }
+
+  return parts;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import type {
   EchoConversation,
   EchoMessage,
@@ -28,14 +29,61 @@ export function parseEcho(raw: string): EchoConversation {
     throw new Error("First line must be a meta record");
   }
 
-  const messages = records.filter(
-    (r): r is EchoMessage => r.kind === "message",
-  );
+  const messages = records
+    .filter((r): r is EchoMessage => r.kind === "message")
+    .map(normalizeMessage);
 
   return {
     meta: metaRecord,
     messages,
   };
+}
+
+/**
+ * Normalize a message to canonical echo format.
+ *
+ * Handles common deviations from external sources:
+ * - Missing `id` → generate one
+ * - `ts` / `timestamp` → `created_at`
+ * - tool_result `tool_call_id` / `tool_use_id` → `id`
+ */
+function normalizeMessage(message: EchoMessage): EchoMessage {
+  const raw = message as unknown as Record<string, unknown>;
+  let msg = message;
+
+  // Ensure message-level id
+  if (!msg.id) {
+    msg = { ...msg, id: nanoid(8) };
+  }
+
+  // Map ts / timestamp → created_at
+  if (!msg.created_at && (raw.ts || raw.timestamp)) {
+    msg = { ...msg, created_at: (raw.ts ?? raw.timestamp) as string };
+  }
+
+  // Normalize tool_result parts
+  const needsPartNormalization = msg.parts.some((p) => {
+    if (p.type !== "tool_result") return false;
+    const r = p as unknown as Record<string, unknown>;
+    return !r.id && (r.tool_call_id || r.tool_use_id);
+  });
+
+  if (needsPartNormalization) {
+    msg = {
+      ...msg,
+      parts: msg.parts.map((p) => {
+        if (p.type !== "tool_result") return p;
+        const r = p as unknown as Record<string, unknown>;
+        if (!r.id && (r.tool_call_id || r.tool_use_id)) {
+          const { tool_call_id, tool_use_id, ...rest } = r;
+          return { ...rest, id: (tool_call_id ?? tool_use_id) as string } as typeof p;
+        }
+        return p;
+      }),
+    };
+  }
+
+  return msg;
 }
 
 /**

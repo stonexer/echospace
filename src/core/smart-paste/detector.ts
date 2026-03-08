@@ -2,6 +2,7 @@ export type DetectedFormat =
   | "openai"
   | "anthropic"
   | "google"
+  | "vercel"
   | "echo"
   | "raw"
   | "unknown";
@@ -15,6 +16,16 @@ export function detectFormat(input: string): DetectedFormat {
   // Try parsing as JSON first
   try {
     const parsed = JSON.parse(trimmed);
+
+    // Vercel AI SDK / Helicone: { request: { prompt: [...] }, response: { ... } }
+    if (parsed.request?.prompt && Array.isArray(parsed.request.prompt)) {
+      return "vercel";
+    }
+
+    // Helicone wrapper: { request: { messages: [...] }, response: { ... } }
+    if (parsed.request?.messages && Array.isArray(parsed.request.messages)) {
+      return "openai";
+    }
 
     // Array of messages with role + content → OpenAI format
     if (Array.isArray(parsed)) {

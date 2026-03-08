@@ -6,6 +6,7 @@ import {
   parseGoogle,
   parseOpenAI,
   parseRaw,
+  parseVercel,
 } from "./parsers";
 
 export { detectFormat, type DetectedFormat };
@@ -24,6 +25,8 @@ export function smartParse(input: string): EchoMessage[] {
       return parseAnthropic(input);
     case "google":
       return parseGoogle(input);
+    case "vercel":
+      return parseVercel(input);
     case "echo": {
       const conversation = parseEcho(input);
       return conversation.messages;
