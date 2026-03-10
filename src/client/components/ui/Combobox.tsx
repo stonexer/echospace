@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ComboboxProps {
   value: string;
@@ -22,9 +22,10 @@ export function Combobox({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query
-    ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase()))
-    : options;
+  const filtered = useMemo(
+    () => query ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase())) : options,
+    [query, options],
+  );
 
   // Reset state when opening/closing
   const openDropdown = useCallback(() => {

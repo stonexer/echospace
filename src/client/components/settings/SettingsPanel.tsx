@@ -18,7 +18,8 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ onClose }: SettingsPanelProps) {
   const pluginStore = usePluginStore();
-  const { plugins, setEnabled } = useStore(pluginStore);
+  const plugins = useStore(pluginStore, (s) => s.plugins);
+  const setEnabled = useStore(pluginStore, (s) => s.setEnabled);
   const panelRef = useRef<HTMLDivElement>(null);
   const [currentMode, setCurrentMode] = useState<Mode>(getMode);
   const [currentTheme, setCurrentTheme] = useState<Theme>(getTheme);
@@ -54,7 +55,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 bottom-full mb-1 w-56 rounded border border-border bg-bg-1 shadow-panel"
+      className="absolute bottom-full left-0 mb-1 w-56 rounded border border-border bg-bg-1 shadow-panel"
     >
       <div className="border-b border-border px-3 py-2">
         <span className="font-serif text-[11px] text-text-desc">

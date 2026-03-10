@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FileEntry } from "../../stores/workspace-store";
+import { SettingsPanel } from "../settings/SettingsPanel";
 
 interface FileListProps {
   files: FileEntry[];
@@ -20,6 +21,7 @@ export function FileList({
 }: FileListProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [newName, setNewName] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleCreate = async () => {
     const filename = newName.trim();
@@ -31,7 +33,7 @@ export function FileList({
   };
 
   return (
-    <aside className="flex w-full shrink-0 flex-col bg-bg-1">
+    <aside className="flex h-full w-full shrink-0 flex-col bg-bg-1">
       {/* Section header */}
       <div className="flex h-9 items-center justify-between px-3">
         <div className="flex items-center gap-1.5">
@@ -42,25 +44,6 @@ export function FileList({
             height="11"
             className="text-text-desc"
           >
-            <style>{`
-              @keyframes es-hover-cw {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-              }
-              @keyframes es-hover-ccw {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(-360deg); }
-              }
-              .es-logo-outer, .es-logo-inner {
-                transform-origin: 256px 256px;
-              }
-              svg:hover .es-logo-outer {
-                animation: es-hover-cw 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-              }
-              svg:hover .es-logo-inner {
-                animation: es-hover-ccw 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-              }
-            `}</style>
             <g className="es-logo-outer">
               <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="currentColor" opacity="0.35" />
               <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="var(--bg-1)" />
@@ -120,24 +103,6 @@ export function FileList({
               width="16"
               height="16"
             >
-              <style>{`
-                @keyframes es-spin-cw {
-                  from { transform: rotate(0deg); }
-                  to { transform: rotate(360deg); }
-                }
-                @keyframes es-spin-ccw {
-                  from { transform: rotate(0deg); }
-                  to { transform: rotate(-360deg); }
-                }
-                .es-loading-outer {
-                  transform-origin: 256px 256px;
-                  animation: es-spin-cw 4s linear infinite;
-                }
-                .es-loading-inner {
-                  transform-origin: 256px 256px;
-                  animation: es-spin-ccw 3s linear infinite;
-                }
-              `}</style>
               <g className="es-loading-outer">
                 <rect x="139.3" y="139.3" width="233.3" height="233.3" rx="36.7" ry="36.7" fill="#BB4B03" />
                 <rect x="168" y="168" width="176" height="176" rx="25" ry="25" fill="#F2E2C1" />
@@ -179,6 +144,27 @@ export function FileList({
               </span>
             </button>
           ))
+        )}
+      </div>
+
+      {/* Settings */}
+      <div className="relative flex h-6 shrink-0 items-center border-t border-border px-3">
+        <button
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          title="Settings"
+          className="flex size-5 items-center justify-center rounded text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
+        >
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+            <line x1="2" y1="4" x2="14" y2="4" />
+            <line x1="2" y1="8" x2="14" y2="8" />
+            <line x1="2" y1="12" x2="14" y2="12" />
+            <circle cx="5" cy="4" r="1.5" fill="var(--bg-1)" />
+            <circle cx="10" cy="8" r="1.5" fill="var(--bg-1)" />
+            <circle cx="7" cy="12" r="1.5" fill="var(--bg-1)" />
+          </svg>
+        </button>
+        {settingsOpen && (
+          <SettingsPanel onClose={() => setSettingsOpen(false)} />
         )}
       </div>
     </aside>

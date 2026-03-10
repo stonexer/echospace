@@ -18,7 +18,7 @@ export function isHiddenToolMessage(message: EchoMessage, allMessages: EchoMessa
       const prevToolCallIds = new Set(
         m.parts.filter((p): p is ToolCallPart => p.type === "tool_call" && !!p.id).map((p) => p.id)
       );
-      return toolResults.every((tr) => prevToolCallIds.has(tr.id));
+      return toolResults.every((tr) => prevToolCallIds.has(tr.tool_call_id));
     }
     if (m.role !== "tool") break;
   }
@@ -205,8 +205,9 @@ export const MessageEditor = memo(function MessageEditor({
   const usage = message.meta?.usage;
 
   // Check if any enabled plugin matches this message
-  const matchingPlugin = plugins.find(
-    (entry) => entry.enabled && entry.plugin.match(message)
+  const matchingPlugin = useMemo(
+    () => plugins.find((entry) => entry.enabled && entry.plugin.match(message)),
+    [plugins, message],
   );
   const htmlOutput =
     matchingPlugin && showHtmlView
@@ -612,7 +613,7 @@ export const MessageEditor = memo(function MessageEditor({
             >
               <div className="mb-1 flex items-center gap-1">
                 <span className="font-mono text-[10px] text-text-placeholder">
-                  tool_use_id: {tr.id}
+                  tool_use_id: {tr.tool_call_id}
                 </span>
               </div>
               {!isReadonly ? (
@@ -654,7 +655,7 @@ export const MessageEditor = memo(function MessageEditor({
 
 /* --- Sub-components --- */
 
-function RoleIcon({ role }: { role: EchoRole }) {
+const RoleIcon = memo(function RoleIcon({ role }: { role: EchoRole }) {
   if (role === "user") {
     return (
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round">
@@ -681,9 +682,9 @@ function RoleIcon({ role }: { role: EchoRole }) {
     );
   }
   return null;
-}
+});
 
-function DragHandle() {
+const DragHandle = memo(function DragHandle() {
   return (
     <svg width="5" height="9" viewBox="0 0 5 9" fill="currentColor" className="text-text-placeholder">
       <circle cx="1" cy="1" r="0.7" />
@@ -694,4 +695,4 @@ function DragHandle() {
       <circle cx="4" cy="8" r="0.7" />
     </svg>
   );
-}
+});

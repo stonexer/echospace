@@ -66,7 +66,7 @@ export function parseOpenAI(input: string): EchoMessage[] {
       parts.length = 0; // Clear text parts
       parts.push({
         type: "tool_result",
-        id: msg.tool_call_id,
+        tool_call_id: msg.tool_call_id,
         output: msg.content ?? "",
       });
     }
@@ -149,7 +149,7 @@ export function parseAnthropic(input: string): EchoMessage[] {
           case "tool_result":
             parts.push({
               type: "tool_result",
-              id: (block.tool_use_id as string) ?? "",
+              tool_call_id: (block.tool_use_id as string) ?? "",
               output: block.content ?? "",
               is_error: block.is_error as boolean | undefined,
             });
@@ -230,7 +230,7 @@ export function parseGoogle(input: string): EchoMessage[] {
         const fr = p.functionResponse as Record<string, unknown>;
         echoParts.push({
           type: "tool_result",
-          id: (fr.name as string) ?? "",
+          tool_call_id: (fr.name as string) ?? "",
           output: fr.response ?? "",
         });
       }
@@ -343,7 +343,7 @@ function convertVercelParts(content: unknown): EchoPart[] {
         }
         parts.push({
           type: "tool_result",
-          id: (block.toolCallId as string) ?? "",
+          tool_call_id: (block.toolCallId as string) ?? "",
           output,
         });
         break;

@@ -341,6 +341,49 @@ body {
   background: var(--selection-color);
 }
 
+/* === EchoSpace Logo Animations === */
+
+/* Hover spin animations (FileList logo) */
+@keyframes es-hover-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes es-hover-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Loading spinner animations (FileList loading) */
+@keyframes es-spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes es-spin-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+/* Logo sub-element classes */
+.es-logo-outer,
+.es-logo-inner {
+  transform-origin: 256px 256px;
+}
+svg:hover .es-logo-outer {
+  animation: es-hover-cw 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+svg:hover .es-logo-inner {
+  animation: es-hover-ccw 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.es-loading-outer {
+  transform-origin: 256px 256px;
+  animation: es-spin-cw 4s linear infinite;
+}
+.es-loading-inner {
+  transform-origin: 256px 256px;
+  animation: es-spin-ccw 3s linear infinite;
+}
+
 /* Textarea reset */
 textarea {
   font-family: inherit;

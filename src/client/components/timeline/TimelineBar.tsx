@@ -14,7 +14,9 @@ export function TimelineBar({
   peekingEventId,
 }: TimelineBarProps) {
   const store = useThreadStore();
-  const { peekEvent, restoreFromPeek, revertToEvent } = useStore(store);
+  const peekEvent = useStore(store, (s) => s.peekEvent);
+  const restoreFromPeek = useStore(store, (s) => s.restoreFromPeek);
+  const revertToEvent = useStore(store, (s) => s.revertToEvent);
 
   return (
     <div className="flex items-center gap-2 border-t border-border bg-bg-1 px-4 py-1.5">

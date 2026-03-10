@@ -17,8 +17,10 @@ interface ConfigPanelProps {
 
 export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
   const store = useThreadStore();
-  const { settings, updateSettings, addMessage, updateMessage } =
-    useStore(store);
+  const settings = useStore(store, (s) => s.settings);
+  const updateSettings = useStore(store, (s) => s.updateSettings);
+  const addMessage = useStore(store, (s) => s.addMessage);
+  const updateMessage = useStore(store, (s) => s.updateMessage);
 
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [showModelSettings, setShowModelSettings] = useState(false);

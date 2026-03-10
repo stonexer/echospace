@@ -41,8 +41,13 @@ export function App() {
   const workspaceStore = useRef(createWorkspaceStore()).current;
   const threadStore = useRef(createThreadStore()).current;
   const pluginStore = useRef(createPluginStore()).current;
-  const workspace = useStore(workspaceStore);
   const activeFile = useStore(workspaceStore, (s) => s.activeFile);
+  const files = useStore(workspaceStore, (s) => s.files);
+  const isLoading = useStore(workspaceStore, (s) => s.isLoading);
+  const setActiveFile = useStore(workspaceStore, (s) => s.setActiveFile);
+  const createFile = useStore(workspaceStore, (s) => s.createFile);
+  const deleteFile = useStore(workspaceStore, (s) => s.deleteFile);
+  const loadFiles = useStore(workspaceStore, (s) => s.loadFiles);
 
   // Register built-in plugins
   useEffect(() => {
@@ -55,14 +60,14 @@ export function App() {
   // Close sidebar on file select when on small screen
   const handleFileSelect = useCallback(
     (path: string) => {
-      workspace.setActiveFile(path);
+      setActiveFile(path);
       if (isSmallScreen) setSidebarOpen(false);
     },
-    [workspace.setActiveFile, isSmallScreen]
+    [setActiveFile, isSmallScreen]
   );
 
   useEffect(() => {
-    workspace.loadFiles();
+    loadFiles();
   }, []);
 
   useEffect(() => {
@@ -189,12 +194,12 @@ export function App() {
 
   const sidebarContent = (
     <FileList
-      files={workspace.files}
-      activeFile={workspace.activeFile}
+      files={files}
+      activeFile={activeFile}
       onSelect={handleFileSelect}
-      onCreate={workspace.createFile}
-      onDelete={workspace.deleteFile}
-      isLoading={workspace.isLoading}
+      onCreate={createFile}
+      onDelete={deleteFile}
+      isLoading={isLoading}
     />
   );
 
