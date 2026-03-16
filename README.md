@@ -160,6 +160,23 @@ providers:
       - gemini-2.5-pro
       - gemini-2.5-flash
       - gemini-2.0-flash
+
+  - name: vercel-ai-gateway
+    type: openai
+    api_key: xxxxxxxx
+    base_url: https://ai-gateway.vercel.sh/v1
+    models:
+      - anthropic/claude-sonnet-4-6
+      - openai/gpt-4.1
+      - google/gemini-2.5-pro
+
+  # Custom OpenAI-compatible gateway
+  - name: custom
+    type: openai          # or: anthropic, google
+    api_key: xxxxxxxx
+    base_url: https://my-proxy.example.com/v1
+    models:
+      - my-model-name
 ```
 
 > **Tip:** `${ENV_VAR}` syntax is also supported for API keys — they are resolved from your environment at runtime. `.env` files in your project directory are auto-loaded.
