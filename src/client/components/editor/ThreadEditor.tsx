@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useStore } from 'zustand';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useThreadStore } from '../../lib/store-context';
@@ -10,23 +10,25 @@ const AUTO_SAVE_DELAY = 600;
 
 export function ThreadEditor() {
   const store = useThreadStore();
-  const {
-    messages,
-    isStreaming,
-    peekingEventId,
-    historyEvents,
-    currentEventId,
-    runCompletion,
-    stopCompletion,
-    saveFile,
-    isDirty,
-    filePath,
-    settings,
-    peekEvent,
-    restoreFromPeek,
-    revertToEvent,
-    toggleHighlight
-  } = useStore(store);
+
+  // Fine-grained selectors — only re-render when the specific field changes
+  const messages = useStore(store, (s) => s.messages);
+  const isStreaming = useStore(store, (s) => s.isStreaming);
+  const peekingEventId = useStore(store, (s) => s.peekingEventId);
+  const historyEvents = useStore(store, (s) => s.historyEvents);
+  const currentEventId = useStore(store, (s) => s.currentEventId);
+  const isDirty = useStore(store, (s) => s.isDirty);
+  const filePath = useStore(store, (s) => s.filePath);
+  const settings = useStore(store, (s) => s.settings);
+
+  // Actions (stable references from zustand)
+  const runCompletion = useStore(store, (s) => s.runCompletion);
+  const stopCompletion = useStore(store, (s) => s.stopCompletion);
+  const saveFile = useStore(store, (s) => s.saveFile);
+  const peekEvent = useStore(store, (s) => s.peekEvent);
+  const restoreFromPeek = useStore(store, (s) => s.restoreFromPeek);
+  const revertToEvent = useStore(store, (s) => s.revertToEvent);
+  const toggleHighlight = useStore(store, (s) => s.toggleHighlight);
 
   // Auto-scroll timeline to latest event
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -54,14 +56,14 @@ export function ThreadEditor() {
   }, [isDirty, filePath, messages, settings, saveFile]);
 
   const isReadonly = peekingEventId != null;
-  const systemMessage = messages.find((m) => m.role === 'system');
-  const chatMessages = messages.filter((m) => m.role !== 'system');
-
-  // Auto-scroll timeline to the right (most recent)
-  useEffect(() => {
-    const el = timelineRef.current;
-    if (el) el.scrollLeft = el.scrollWidth;
-  }, [historyEvents.length]);
+  const systemMessage = useMemo(
+    () => messages.find((m) => m.role === 'system'),
+    [messages],
+  );
+  const chatMessages = useMemo(
+    () => messages.filter((m) => m.role !== 'system'),
+    [messages],
+  );
 
   const handleRun = useCallback(async () => {
     try {
@@ -70,6 +72,15 @@ export function ThreadEditor() {
       toast.error((err as Error).message);
     }
   }, [runCompletion]);
+
+  const handleToggleHighlight = useCallback(() => {
+    if (currentEventId) toggleHighlight(currentEventId);
+  }, [currentEventId, toggleHighlight]);
+
+  const currentEventHighlighted = useMemo(
+    () => historyEvents.find((e) => e.id === currentEventId)?.highlighted,
+    [historyEvents, currentEventId],
+  );
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -124,10 +135,10 @@ export function ThreadEditor() {
         <div className="flex shrink-0 items-center gap-2">
           {currentEventId && (
             <button
-              onClick={() => toggleHighlight(currentEventId)}
+              onClick={handleToggleHighlight}
               title="Highlight current version"
               className={`flex h-7 items-center justify-center gap-1 rounded px-2 text-[12px] font-medium transition-colors ${
-                historyEvents.find((e) => e.id === currentEventId)?.highlighted
+                currentEventHighlighted
                   ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25'
                   : 'bg-bg-3 text-text-desc hover:bg-bg-4 hover:text-text-secondary'
               }`}

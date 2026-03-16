@@ -441,7 +441,7 @@ function ToolsSection({
           No tools configured
         </div>
       ) : (
-        <div className="flex flex-col gap-1">
+        <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
           {tools.map((tool, i) => (
             <ToolItem
               key={i}

@@ -2,28 +2,34 @@ import type { EchoMessage, EchoPart, EchoSettings } from "../echo/types";
 import type { ProviderAdapter, ProviderConfig } from "./types";
 
 /**
- * Convert EchoMessage parts to OpenAI message content.
+ * Convert EchoMessage parts to one or more OpenAI messages.
+ *
+ * A single echo "tool" message may contain multiple tool_result parts,
+ * but the OpenAI format requires one message per tool result.
  */
-function toOpenAIMessage(msg: EchoMessage): Record<string, unknown> {
-  const result: Record<string, unknown> = { role: msg.role };
-
+function toOpenAIMessages(msg: EchoMessage): Record<string, unknown>[] {
   const textParts = msg.parts.filter((p) => p.type === "text");
   const toolCalls = msg.parts.filter((p) => p.type === "tool_call");
   const toolResults = msg.parts.filter((p) => p.type === "tool_result");
   const thinkingParts = msg.parts.filter((p) => p.type === "thinking");
 
+  // Expand each tool_result into its own "tool" message
   if (msg.role === "tool" && toolResults.length > 0) {
-    const tr = toolResults[0]!;
-    result.content =
-      typeof tr.output === "string"
-        ? tr.output
-        : JSON.stringify(tr.output);
-    result.tool_call_id = tr.tool_call_id;
-    return result;
+    return toolResults.map((tr) => ({
+      role: "tool",
+      tool_call_id: tr.tool_call_id,
+      content:
+        typeof tr.output === "string"
+          ? tr.output
+          : JSON.stringify(tr.output),
+    }));
   }
 
   if (msg.role === "assistant") {
-    result.content = textParts.map((p) => p.text).join("") || null;
+    const result: Record<string, unknown> = {
+      role: "assistant",
+      content: textParts.map((p) => p.text).join("") || null,
+    };
 
     if (thinkingParts.length > 0) {
       result.reasoning_content = thinkingParts.map((p) => p.text).join("");
@@ -42,12 +48,11 @@ function toOpenAIMessage(msg: EchoMessage): Record<string, unknown> {
         },
       }));
     }
-    return result;
+    return [result];
   }
 
   // system / user
-  result.content = textParts.map((p) => p.text).join("");
-  return result;
+  return [{ role: msg.role, content: textParts.map((p) => p.text).join("") }];
 }
 
 export const openaiAdapter: ProviderAdapter = {
@@ -63,7 +68,7 @@ export const openaiAdapter: ProviderAdapter = {
 
     const body: Record<string, unknown> = {
       model: settings.model ?? config.models[0],
-      messages: messages.map(toOpenAIMessage),
+      messages: messages.flatMap(toOpenAIMessages),
       stream: true,
     };
 

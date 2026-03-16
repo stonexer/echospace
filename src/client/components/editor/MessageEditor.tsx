@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useRef, useEffect, useState, useMemo, memo } from "react";
 import { useStore } from "zustand";
 import { useThreadStore, usePluginStore } from "../../lib/store-context";
 import type { EchoMessage, EchoRole, ToolCallPart } from "~/core/echo/types";
@@ -28,7 +28,8 @@ export function isHiddenToolMessage(message: EchoMessage, allMessages: EchoMessa
 interface MessageEditorProps {
   message: EchoMessage;
   index: number;
-  allMessages: EchoMessage[];
+  cumulativeTokens: number;
+  toolResultMessages: Map<string, { msg: EchoMessage; partIndex: number }> | null;
   isReadonly: boolean;
   isStreaming: boolean;
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement> | null;
@@ -43,17 +44,24 @@ const ROLE_STYLES: Record<EchoRole, string> = {
 
 const ROLE_CYCLE: EchoRole[] = ["user", "assistant", "tool"];
 
-export function MessageEditor({
+export const MessageEditor = memo(function MessageEditor({
   message,
   index,
-  allMessages,
+  cumulativeTokens,
+  toolResultMessages,
   isReadonly,
   isStreaming,
   dragHandleProps,
 }: MessageEditorProps) {
   const store = useThreadStore();
-  const { updateMessage, updateMessageRole, removeMessage, runCompletion, runFromMessage, addImageToMessage, addToolResultMessage } =
-    useStore(store);
+  const updateMessage = useStore(store, (s) => s.updateMessage);
+  const updateMessageRole = useStore(store, (s) => s.updateMessageRole);
+  const removeMessage = useStore(store, (s) => s.removeMessage);
+  const runCompletion = useStore(store, (s) => s.runCompletion);
+  const runFromMessage = useStore(store, (s) => s.runFromMessage);
+  const addImageToMessage = useStore(store, (s) => s.addImageToMessage);
+  const addToolResultMessage = useStore(store, (s) => s.addToolResultMessage);
+
   const pluginStore = usePluginStore();
   const plugins = useStore(pluginStore, (s) => s.plugins);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -61,52 +69,36 @@ export function MessageEditor({
   const [collapsed, setCollapsed] = useState(false);
   const [showHtmlView, setShowHtmlView] = useState(false);
 
-  const text =
-    message.parts.find((p) => p.type === "text")?.text ?? "";
+  // Memoize parts filtering
+  const text = useMemo(
+    () => message.parts.find((p) => p.type === "text")?.text ?? "",
+    [message.parts],
+  );
 
-  const thinkingText = message.parts
-    .filter((p) => p.type === "thinking")
-    .map((p) => p.text)
-    .join("");
+  const thinkingText = useMemo(
+    () => message.parts
+      .filter((p) => p.type === "thinking")
+      .map((p) => p.text)
+      .join(""),
+    [message.parts],
+  );
 
-  const toolCalls = message.parts.filter((p) => p.type === "tool_call");
-  const toolResults = message.parts.filter((p) => p.type === "tool_result");
-  const images = message.parts.filter((p) => p.type === "image");
+  const toolCalls = useMemo(
+    () => message.parts.filter((p) => p.type === "tool_call"),
+    [message.parts],
+  );
 
-  // For assistant messages: find tool result messages that follow this message
-  // and match by tool_call id, so we can render them inline
-  const toolResultMessages = message.role === "assistant" && toolCalls.length > 0
-    ? (() => {
-        const myIdx = allMessages.findIndex((m) => m.id === message.id);
-        const results = new Map<string, { msg: EchoMessage; partIndex: number }>();
-        // Scan forward for tool messages with matching tool_result parts
-        for (let i = myIdx + 1; i < allMessages.length; i++) {
-          const m = allMessages[i];
-          if (m.role !== "tool") break;
-          for (let pi = 0; pi < m.parts.length; pi++) {
-            const p = m.parts[pi];
-            if (p.type === "tool_result" && p.tool_call_id) {
-              results.set(p.tool_call_id, { msg: m, partIndex: pi });
-            }
-          }
-        }
-        return results;
-      })()
-    : null;
+  const toolResults = useMemo(
+    () => message.parts.filter((p) => p.type === "tool_result"),
+    [message.parts],
+  );
 
-  const isInlinedToolMessage = isHiddenToolMessage(message, allMessages);
+  const images = useMemo(
+    () => message.parts.filter((p) => p.type === "image"),
+    [message.parts],
+  );
 
   const tokenEstimate = Math.ceil(text.length / 4);
-  const cumulativeTokens = allMessages
-    .slice(0, index + 1)
-    .reduce((sum, m) => {
-      const t = m.parts
-        .filter((p) => p.type === "text" || p.type === "thinking")
-        .map((p) => (p as { text: string }).text)
-        .join("")
-        .length;
-      return sum + Math.ceil(t / 4);
-    }, 0);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -183,8 +175,31 @@ export function MessageEditor({
     [message, updateMessage],
   );
 
+  const handleRunFromMessage = useCallback(
+    () => runFromMessage(message.id),
+    [message.id, runFromMessage],
+  );
+
+  const handleRemoveMessage = useCallback(
+    () => removeMessage(message.id),
+    [message.id, removeMessage],
+  );
+
+  const handleToggleCollapse = useCallback(
+    () => setCollapsed((c) => !c),
+    [],
+  );
+
+  const handleToggleHtmlView = useCallback(
+    () => setShowHtmlView((v) => !v),
+    [],
+  );
+
   // Collapsed preview text
-  const previewText = text.replace(/\n/g, " ").slice(0, 80);
+  const previewText = useMemo(
+    () => text.replace(/\n/g, " ").slice(0, 80),
+    [text],
+  );
 
   const latency = message.meta?.latency;
   const usage = message.meta?.usage;
@@ -327,7 +342,7 @@ export function MessageEditor({
         {/* Collapsed preview — clickable to expand */}
         <div
           className="h-4 min-w-0 flex-1 cursor-pointer"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={handleToggleCollapse}
         >
           <div
             className={`flex h-4 w-full items-center overflow-hidden px-2 text-[11px] text-text-desc transition-all truncate whitespace-nowrap ${
@@ -349,7 +364,7 @@ export function MessageEditor({
             {/* HTML view toggle */}
             {matchingPlugin && (
               <button
-                onClick={() => setShowHtmlView(!showHtmlView)}
+                onClick={handleToggleHtmlView}
                 title={showHtmlView ? "Show source" : "Show rendered HTML"}
                 className={`flex h-5 items-center justify-center rounded-sm px-1.5 font-mono text-[9px] font-medium transition-colors ${
                   showHtmlView
@@ -376,7 +391,7 @@ export function MessageEditor({
 
             {/* Run from this message */}
             <button
-              onClick={() => runFromMessage(message.id)}
+              onClick={handleRunFromMessage}
               title="Run from this message"
               className="flex size-5 items-center justify-center rounded-sm text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
             >
@@ -388,7 +403,7 @@ export function MessageEditor({
 
             {/* Remove message */}
             <button
-              onClick={() => removeMessage(message.id)}
+              onClick={handleRemoveMessage}
               title="Remove this message"
               className="flex size-5 items-center justify-center rounded-sm text-text-desc transition-colors hover:bg-bg-4 hover:text-destructive"
             >
@@ -401,7 +416,7 @@ export function MessageEditor({
 
           {/* Collapse toggle (always visible when collapsed, hover otherwise) */}
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={handleToggleCollapse}
             title={collapsed ? "Expand this message" : "Collapse this message"}
             className={`flex size-5 items-center justify-center rounded-sm text-text-desc transition-all hover:bg-bg-4 hover:text-text-secondary ${
               collapsed ? "opacity-100" : "max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
@@ -583,8 +598,8 @@ export function MessageEditor({
         </div>
       )}
 
-      {/* Tool results (only shown for standalone tool messages not inlined above) */}
-      {toolResults.length > 0 && !isInlinedToolMessage && !collapsed && (
+      {/* Tool results (only shown for standalone tool messages) */}
+      {toolResults.length > 0 && !collapsed && (
         <div className="border-t border-border px-3 py-2">
           {toolResults.map((tr, i) => (
             <div
@@ -635,7 +650,7 @@ export function MessageEditor({
       )}
     </div>
   );
-}
+});
 
 /* --- Sub-components --- */
 

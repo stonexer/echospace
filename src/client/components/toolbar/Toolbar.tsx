@@ -12,8 +12,13 @@ interface ProviderInfo {
 
 export function Toolbar() {
   const store = useThreadStore();
-  const { settings, updateSettings, isStreaming, runCompletion, stopCompletion } =
-    useStore(store);
+
+  // Fine-grained selectors
+  const settings = useStore(store, (s) => s.settings);
+  const updateSettings = useStore(store, (s) => s.updateSettings);
+  const isStreaming = useStore(store, (s) => s.isStreaming);
+  const runCompletion = useStore(store, (s) => s.runCompletion);
+  const stopCompletion = useStore(store, (s) => s.stopCompletion);
 
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
 

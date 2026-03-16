@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useStore } from "zustand";
 import { useThreadStore, useWorkspaceStore } from "../../lib/store-context";
 import { SettingsPanel } from "../settings/SettingsPanel";
@@ -7,10 +7,19 @@ export function StatusBar() {
   const threadStore = useThreadStore();
   const workspaceStore = useWorkspaceStore();
   const activeFile = useStore(workspaceStore, (s) => s.activeFile);
-  const { settings, messages, isDirty, isStreaming } = useStore(threadStore);
+
+  // Fine-grained selectors
+  const settings = useStore(threadStore, (s) => s.settings);
+  const messages = useStore(threadStore, (s) => s.messages);
+  const isDirty = useStore(threadStore, (s) => s.isDirty);
+  const isStreaming = useStore(threadStore, (s) => s.isStreaming);
+
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const messageCount = messages.filter((m) => m.role !== "system").length;
+  const messageCount = useMemo(
+    () => messages.filter((m) => m.role !== "system").length,
+    [messages],
+  );
 
   return (
     <div className="flex h-6 shrink-0 items-center justify-between border-t border-border bg-bg-1 px-3 text-[11px] text-text-desc">

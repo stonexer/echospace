@@ -367,6 +367,21 @@ export function createThreadStore() {
         const decoder = new TextDecoder();
         let buffer = "";
         const accumulatedParts: EchoPart[] = [];
+        let rafHandle = 0;
+        let partsChanged = false;
+
+        const flushToState = () => {
+          rafHandle = 0;
+          if (!partsChanged) return;
+          partsChanged = false;
+          set((s) => ({
+            messages: s.messages.map((m) =>
+              m.id === assistantMsg.id
+                ? { ...m, parts: [...accumulatedParts] }
+                : m,
+            ),
+          }));
+        };
 
         while (true) {
           const { done, value } = await reader.read();
@@ -403,19 +418,22 @@ export function createThreadStore() {
                   }
                 }
 
-                // Update the message in state
-                set((s) => ({
-                  messages: s.messages.map((m) =>
-                    m.id === assistantMsg.id
-                      ? { ...m, parts: [...accumulatedParts] }
-                      : m,
-                  ),
-                }));
+                // Throttle state updates via requestAnimationFrame
+                partsChanged = true;
+                if (!rafHandle) {
+                  rafHandle = requestAnimationFrame(flushToState);
+                }
               }
             } catch {
               // Skip malformed chunks
             }
           }
+        }
+
+        // Final flush to ensure all accumulated parts are in state
+        if (partsChanged) {
+          if (rafHandle) cancelAnimationFrame(rafHandle);
+          flushToState();
         }
 
         // Finalize with metadata
