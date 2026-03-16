@@ -41,15 +41,7 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 
 ## Quick Start
 
-### 1. Install skills
-
-EchoSpace ships with agent skills that work with any coding agent — [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenAI Codex](https://openai.com/index/codex/), or any tool that supports the skills/SKILL.md convention.
-
-```bash
-npx skills add stonexer/echospace
-```
-
-### 2. Configure providers
+### 1. Initialize
 
 ```bash
 npx echospace init
@@ -67,9 +59,14 @@ npx echospace init
 │ sk-xxxxxxxx
 
 ✓ Config saved to ~/.echospace/config.yaml
+
+◆ Install agent skills for your coding agent? (Claude Code, Codex, etc.)
+│ ● Yes / ○ No
+
+✓ Skills installed!
 ```
 
-### 3. Launch
+### 2. Launch
 
 ```bash
 npx echospace@alpha
