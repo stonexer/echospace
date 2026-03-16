@@ -18,7 +18,7 @@ All data stored as `.echo` files on disk. No cloud, no accounts. Your prompts st
 
 ### Open Source & Customizable
 
-MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-based config with `${ENV_VAR}` substitution.
+MIT-licensed. Pluggable provider adapters with YAML-based config and `${ENV_VAR}` substitution.
 
 ### CLI & SDK
 
