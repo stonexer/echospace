@@ -85,12 +85,13 @@ This will:
 2. Start a local server and open the UI in your browser
 
 ```
-  ╔══════════════════════════════════════╗
-  ║           EchoSpace v0.1.0          ║
-  ╠══════════════════════════════════════╣
-  ║  Workspace: /my-project/.echo        ║
-  ║  URL:       http://localhost:3240    ║
-  ╚══════════════════════════════════════╝
+  ██████████████
+  ██          ██   EchoSpace v0.1.0
+  ██  ██████  ██
+  ██  ██  ██  ██   Workspace  /my-project/.echo
+  ██  ██████  ██   URL        http://localhost:3240
+  ██          ██
+  ██████████████
 ```
 
 ### Available Skills
