@@ -44,7 +44,7 @@ MIT-licensed. Pluggable provider adapters (OpenAI, Anthropic, Google). YAML-base
 ### 1. Initialize
 
 ```bash
-npx echospace init
+npx echospace@alpha init
 ```
 
 ```
@@ -75,7 +75,7 @@ npx echospace@alpha
 Or install globally:
 
 ```bash
-pnpm add -g echospace
+pnpm add -g echospace@alpha
 echospace ./my-project
 ```
 
@@ -103,7 +103,7 @@ This will:
 ### CLI Options
 
 ```
-echospace [workdir] [options]
+echospace@alpha [workdir] [options]
 
   [workdir]           Workspace directory (default: ".")
   -p, --port <port>   Port to serve on (default: auto-select 3240-3249)
