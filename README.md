@@ -6,7 +6,7 @@
 
 <p align="center"><strong>The open-source, local-first prompt debugging workspace for LLM developers.</strong></p>
 
-Debug, iterate, and manage your prompts across OpenAI, Anthropic, and Google — all from your terminal. No cloud, no accounts, no lock-in.
+Debug, iterate, and manage your prompts across multiple LLM providers — all from your terminal. No cloud, no accounts, no lock-in.
 
 ---
 
