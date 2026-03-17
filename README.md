@@ -14,7 +14,7 @@ Debug, iterate, and manage your prompts across multiple LLM providers — all fr
 
 ### Local First
 
-All data stored as `.echo` files on disk. No cloud, no accounts. Your prompts stay on your machine, version-controlled alongside your code.
+All data stored as `.echo` files on disk. Your prompts stay on your machine, version-controlled alongside your code.
 
 ### Open Source & Customizable
 
@@ -28,9 +28,9 @@ MIT-licensed. Pluggable provider adapters with YAML-based config and `${ENV_VAR}
 
 ## Features
 
-- **Multi-provider streaming** — OpenAI, Anthropic, Google Gemini with SSE streaming
+- **Multi-provider streaming** — SSE streaming across all configured providers
 - **Universal `.echo` format** — NDJSON-based, human-readable conversation protocol
-- **Smart Paste** — auto-detects and converts conversations from ChatGPT, Claude, Gemini, or raw text
+- **Smart Paste** — auto-detects and converts conversations from major LLM platforms or raw text
 - **Timeline / history with branching** — revert to any point in a conversation
 - **Tool use support** — `tool_call` / `tool_result` parts
 - **Token counting** — tiktoken-based token estimation
@@ -98,13 +98,13 @@ This will:
 
 | Skill                     | Description                                                                                    |
 | ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `/echospace-export`       | Convert conversation files (OpenAI, Anthropic, Google, Helicone, raw text) into `.echo` format |
+| `/echospace-export`       | Convert conversation exports from major LLM platforms into `.echo` format |
 | `/echospace-integrate`    | Integrate `.echo` export into your own app                                                     |
 
 ### CLI Options
 
 ```
-echospace@alpha [workdir] [options]
+echospace [workdir] [options]
 
   [workdir]           Workspace directory (default: ".")
   -p, --port <port>   Port to serve on (default: auto-select 3240-3249)
@@ -129,7 +129,7 @@ Each message can contain multiple part types: `text`, `thinking`, `tool_call`, `
 
 ## Configuration
 
-On first launch, EchoSpace creates `~/.echospace/config.yaml`. Fill in the `api_key` for the providers you want to use — unconfigured providers are automatically ignored.
+Run `npx echospace@alpha init` to create `~/.echospace/config.yaml`, or edit it manually:
 
 ```yaml
 providers:
