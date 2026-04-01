@@ -54,6 +54,21 @@
   --color-bg-4: var(--bg-4);
   --color-bg-5: var(--bg-5);
 
+  /* Border layers */
+  --color-border-2: var(--border-2);
+  --color-border-subtle: var(--border-subtle);
+
+  /* Interactive */
+  --color-interactive-bg: var(--interactive-bg);
+  --color-interactive-bg-hover: var(--interactive-bg-hover);
+  --color-interactive-bg-active: var(--interactive-bg-active);
+
+  /* Role borders */
+  --color-role-system-border: var(--role-system-border);
+  --color-role-user-border: var(--role-user-border);
+  --color-role-assistant-border: var(--role-assistant-border);
+  --color-role-tool-border: var(--role-tool-border);
+
   /* Semantic */
   --color-background: var(--bg-1);
   --color-foreground: var(--text-normal);
@@ -61,6 +76,9 @@
   --color-primary-light: var(--primary-light);
   --color-destructive: var(--danger);
   --color-border: var(--border-1);
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-danger-light: var(--danger-light);
 
   /* Text */
   --color-text-emphasize: var(--text-emphasize);
@@ -76,6 +94,12 @@
   --radius-lg: 6px;
   --radius-xl: 12px;
   --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Duration */
+  --duration-fast: var(--duration-fast);
+  --duration-base: var(--duration-base);
+  --duration-slow: var(--duration-slow);
 
   /* Shadows */
   --shadow-card: var(--shadow-card-value);
@@ -110,6 +134,29 @@
   --text-disable: #ccc2b4; /* Washed */
 
   --border-1: #d8d0c2; /* Paper edge */
+  --border-2: #c0b8aa;
+  --border-subtle: #e8e2d8;
+
+  --interactive-bg: transparent;
+  --interactive-bg-hover: var(--bg-1-2);
+  --interactive-bg-active: var(--bg-3);
+
+  --role-system-border: rgba(120, 90, 150, 0.20);
+  --role-user-border: rgba(163, 98, 58, 0.20);
+  --role-assistant-border: rgba(90, 126, 69, 0.20);
+  --role-tool-border: rgba(178, 130, 50, 0.20);
+
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-slow: 250ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-tooltip: 200;
+  --z-modal: 300;
+  --z-toast: 400;
 
   --primary: #a3623a; /* Cognac/terracotta */
   --primary-light: rgba(163, 98, 58, 0.1);
@@ -160,6 +207,17 @@
   --text-disable: #c0c4cb; /* Cool washed */
 
   --border-1: #d0d3d9; /* Cool paper edge */
+  --border-2: #b8bcc4;
+  --border-subtle: #e0e3e8;
+
+  --interactive-bg: transparent;
+  --interactive-bg-hover: var(--bg-1-2);
+  --interactive-bg-active: var(--bg-3);
+
+  --role-system-border: rgba(120, 90, 150, 0.20);
+  --role-user-border: rgba(163, 98, 58, 0.20);
+  --role-assistant-border: rgba(90, 126, 69, 0.20);
+  --role-tool-border: rgba(178, 130, 50, 0.20);
 
   --primary: #6a7fa8; /* Dusty blue */
   --primary-light: rgba(106, 127, 168, 0.1);
@@ -210,6 +268,17 @@
   --text-disable: #4d453a; /* Deep dim */
 
   --border-1: #3a352e; /* Warm edge */
+  --border-2: #4d4740;
+  --border-subtle: #2a2720;
+
+  --interactive-bg: transparent;
+  --interactive-bg-hover: var(--bg-1-2);
+  --interactive-bg-active: var(--bg-3);
+
+  --role-system-border: rgba(120, 90, 150, 0.25);
+  --role-user-border: rgba(163, 98, 58, 0.25);
+  --role-assistant-border: rgba(90, 126, 69, 0.25);
+  --role-tool-border: rgba(178, 130, 50, 0.25);
 
   --primary: #c4784a; /* Bright cognac */
   --primary-light: rgba(196, 120, 74, 0.12);
@@ -260,6 +329,17 @@
   --text-disable: #444b5a; /* Deep dim */
 
   --border-1: #2d323d; /* Cool edge */
+  --border-2: #3d4452;
+  --border-subtle: #22262e;
+
+  --interactive-bg: transparent;
+  --interactive-bg-hover: var(--bg-1-2);
+  --interactive-bg-active: var(--bg-3);
+
+  --role-system-border: rgba(120, 90, 150, 0.25);
+  --role-user-border: rgba(163, 98, 58, 0.25);
+  --role-assistant-border: rgba(90, 126, 69, 0.25);
+  --role-tool-border: rgba(178, 130, 50, 0.25);
 
   --primary: #6a7fa8; /* Dusty blue */
   --primary-light: rgba(106, 127, 168, 0.12);
@@ -302,8 +382,8 @@ body {
   background-color: var(--bg-1);
   color: var(--text-normal);
   font-family: var(--font-sans);
-  font-size: 12.5px;
-  line-height: 19px;
+  font-size: 13px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
