@@ -6,46 +6,45 @@
 
 <p align="center"><strong>The open-source, local-first prompt debugging workspace for LLM developers.</strong></p>
 
-Debug, iterate, and manage your prompts across multiple LLM providers — all from your terminal. No cloud, no accounts, no lock-in.
+<p align="center">
+  Debug, iterate, and manage your prompts across multiple LLM providers — all from your terminal.<br/>
+  No cloud. No accounts. No lock-in.
+</p>
 
 ---
 
 ## Why EchoSpace?
 
-### Local First
+Prompt engineering is iterative, but most tools make you choose between a polished UI and full control over your data. EchoSpace gives you both: a browser-based workspace that runs entirely on your machine, stores conversations as plain files you can version-control, and works with any OpenAI-compatible provider out of the box.
 
-All data stored as `.echo` files on disk. Your prompts stay on your machine, version-controlled alongside your code.
-
-### Open Source & Customizable
-
-MIT-licensed. Pluggable provider adapters with YAML-based config and `${ENV_VAR}` substitution.
-
-### CLI & SDK
-
-`npx echospace@alpha` to launch. Core TypeScript modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) can be imported as a library for building your own tools.
+- **Local-first** — all data stored as `.echo` files on disk, version-controlled alongside your code
+- **Open source** — MIT-licensed, pluggable provider adapters, `${ENV_VAR}` substitution in config
+- **CLI & library** — `npx echospace@alpha` to launch; core modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) are importable as a library
 
 ---
 
 ## Features
 
-- **Multi-provider streaming** — SSE streaming across all configured providers
-- **Universal `.echo` format** — NDJSON-based, human-readable conversation protocol
-- **Smart Paste** — auto-detects and converts conversations from major LLM platforms or raw text
-- **Timeline / history with branching** — revert to any point in a conversation
-- **Tool use support** — `tool_call` / `tool_result` parts
-- **Token counting** — tiktoken-based token estimation
-- **Image support** — inline images in messages (base64 or URL)
+- **Multi-provider streaming** — SSE streaming across all configured providers (OpenAI, Anthropic, Google, or any OpenAI-compatible gateway)
+- **Universal `.echo` format** — NDJSON-based, human-readable conversation protocol designed for diffing and version control
+- **Smart Paste** — auto-detects and converts conversation exports from major LLM platforms or raw text
+- **Timeline & branching** — revert to any point in a conversation, fork branches, compare results
+- **Tool use support** — first-class `tool_call` / `tool_result` message parts
+- **Token counting** — tiktoken-based token estimation shown in real time
+- **Image support** — inline images in messages via base64 or URL
 - **Per-conversation model settings** — temperature, max_tokens, top_p, response_format, JSON schema, tools
 
 ---
 
-## Quick Start
+## Getting Started
 
 ### 1. Initialize
 
 ```bash
 npx echospace@alpha init
 ```
+
+The interactive setup wizard configures your provider and API key:
 
 ```
 ◆ Which LLM service do you use?
@@ -79,7 +78,7 @@ pnpm add -g echospace@alpha
 echospace ./my-project
 ```
 
-This will:
+EchoSpace will:
 
 1. Create a `.echo/` workspace in your project directory
 2. Start a local server and open the UI in your browser
@@ -94,13 +93,6 @@ This will:
   ██████████████
 ```
 
-### Available Skills
-
-| Skill                     | Description                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `/echospace-export`       | Convert conversation exports from major LLM platforms into `.echo` format |
-| `/echospace-integrate`    | Integrate `.echo` export into your own app                                                     |
-
 ### CLI Options
 
 ```
@@ -110,6 +102,26 @@ echospace [workdir] [options]
   -p, --port <port>   Port to serve on (default: auto-select 3240-3249)
   --no-open           Don't open browser automatically
 ```
+
+### Agent Skills
+
+| Skill | Description |
+| --- | --- |
+| `/echospace-export` | Convert conversation exports from major LLM platforms into `.echo` format |
+| `/echospace-integrate` | Integrate a `.echo` export into your own app |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 19, Tailwind CSS v4, Zustand, CodeMirror |
+| Backend | Hono, Node.js |
+| Build | Vite, tsup, TypeScript 5 |
+| Testing | Vitest |
+| Tokenization | tiktoken |
+| Package manager | pnpm |
 
 ---
 
@@ -179,7 +191,7 @@ providers:
       - my-model-name
 ```
 
-> **Tip:** `${ENV_VAR}` syntax is also supported for API keys — they are resolved from your environment at runtime. `.env` files in your project directory are auto-loaded.
+> **Tip:** `${ENV_VAR}` syntax is supported for API keys — values are resolved from your environment at runtime. `.env` files in your project directory are auto-loaded.
 
 ---
 
@@ -197,6 +209,7 @@ pnpm build        # Build for production
 pnpm typecheck    # Type-check without emitting
 pnpm lint         # ESLint
 pnpm format       # Prettier
+pnpm test         # Run tests
 ```
 
 ---
