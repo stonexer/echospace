@@ -36,6 +36,28 @@ Prompt engineering is iterative, but most tools make you choose between a polish
 
 ---
 
+## Hello World
+
+Get your first conversation running in under a minute:
+
+```bash
+# 1. Install and initialize
+npx echospace@alpha init
+
+# 2. Launch the workspace
+npx echospace@alpha
+```
+
+Open the UI in your browser, create a new conversation, and send your first message:
+
+```
+Hello, world!
+```
+
+EchoSpace will stream the response live and save the conversation as a `.echo` file in your project directory.
+
+---
+
 ## Getting Started
 
 ### 1. Initialize
