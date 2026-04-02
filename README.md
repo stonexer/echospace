@@ -11,15 +11,27 @@
   No cloud. No accounts. No lock-in.
 </p>
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/echospace"><img src="https://img.shields.io/npm/v/echospace?label=npm&color=blue" alt="npm" /></a>
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT" />
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="Platform" />
+</p>
+
 ---
 
 ## Why EchoSpace?
 
-Prompt engineering is iterative, but most tools make you choose between a polished UI and full control over your data. EchoSpace gives you both: a browser-based workspace that runs entirely on your machine, stores conversations as plain files you can version-control, and works with any OpenAI-compatible provider out of the box.
+Prompt engineering is iterative, but most tools make you choose between a polished UI and full control over your data. EchoSpace gives you both:
 
 - **Local-first** — all data stored as `.echo` files on disk, version-controlled alongside your code
 - **Open source** — MIT-licensed, pluggable provider adapters, `${ENV_VAR}` substitution in config
 - **CLI & library** — `npx echospace@alpha` to launch; core modules (`parseEcho`, `serializeEcho`, `smartParse`, provider registry) are importable as a library
+
+---
+
+## Screenshots
+
+<!-- TODO: add screenshot -->
 
 ---
 
@@ -105,10 +117,8 @@ echospace [workdir] [options]
 
 ### Agent Skills
 
-| Skill | Description |
-| --- | --- |
-| `/echospace-export` | Convert conversation exports from major LLM platforms into `.echo` format |
-| `/echospace-integrate` | Integrate a `.echo` export into your own app |
+- **`/echospace-export`** — Convert conversation exports from major LLM platforms into `.echo` format
+- **`/echospace-integrate`** — Integrate a `.echo` export into your own app
 
 ---
 
