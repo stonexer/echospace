@@ -39,31 +39,42 @@ program
   .version(VERSION)
   .argument("[workdir]", "Workspace directory", ".")
   .option("-p, --port <port>", "Port to serve on")
+  .option(
+    "-d, --dir <path>",
+    "Open this directory directly as the workspace (skips the .echo subdir)",
+  )
   .option("--no-open", "Don't open browser automatically")
-  .action(async (workdir: string, options: { port?: string; open: boolean }) => {
-    const baseDir = path.resolve(process.cwd(), workdir);
-    const workspaceDir = path.join(baseDir, ".echo");
+  .action(
+    async (
+      workdir: string,
+      options: { port?: string; dir?: string; open: boolean },
+    ) => {
+      const baseDir = path.resolve(process.cwd(), workdir);
+      // --dir points workspaceDir straight at a folder; otherwise use <workdir>/.echo
+      const workspaceDir = options.dir
+        ? path.resolve(process.cwd(), options.dir)
+        : path.join(baseDir, ".echo");
 
-    // Load .env from base dir and project root
-    loadEnvFile(baseDir);
-    loadEnvFile(process.cwd());
+      // Load .env from base dir and project root
+      loadEnvFile(baseDir);
+      loadEnvFile(process.cwd());
 
-    // Ensure .echo workspace directory exists
-    if (!fs.existsSync(workspaceDir)) {
-      fs.mkdirSync(workspaceDir, { recursive: true });
-    }
+      // Ensure workspace directory exists
+      if (!fs.existsSync(workspaceDir)) {
+        fs.mkdirSync(workspaceDir, { recursive: true });
+      }
 
-    // Ensure config dir
-    fs.mkdirSync(CONFIG_DIR, { recursive: true });
-    ensureConfig(CONFIG_DIR);
+      // Ensure config dir
+      fs.mkdirSync(CONFIG_DIR, { recursive: true });
+      ensureConfig(CONFIG_DIR);
 
-    // Find available port
-    const port = options.port
-      ? parseInt(options.port, 10)
-      : await getPort({ port: portNumbers(3240, 3249) });
+      // Find available port
+      const port = options.port
+        ? parseInt(options.port, 10)
+        : await getPort({ port: portNumbers(3240, 3249) });
 
-    const url = `http://localhost:${port}`;
-    console.log(`
+      const url = `http://localhost:${port}`;
+      console.log(`
   ██████████████
   ██          ██   EchoSpace v${VERSION}
   ██  ██████  ██
@@ -73,21 +84,24 @@ program
   ██████████████
 `);
 
-    const isDev = process.env.NODE_ENV !== "production" && import.meta.url.includes("/src/");
-    startServer({ port, workspaceDir, configDir: CONFIG_DIR, dev: isDev });
+      const isDev =
+        process.env.NODE_ENV !== "production" &&
+        import.meta.url.includes("/src/");
+      startServer({ port, workspaceDir, configDir: CONFIG_DIR, dev: isDev });
 
-    if (options.open) {
-      await open(`http://localhost:${port}`);
-    }
+      if (options.open) {
+        await open(`http://localhost:${port}`);
+      }
 
-    // Graceful shutdown
-    const shutdown = () => {
-      console.log("\nShutting down EchoSpace...");
-      process.exit(0);
-    };
-    process.on("SIGINT", shutdown);
-    process.on("SIGTERM", shutdown);
-  });
+      // Graceful shutdown
+      const shutdown = () => {
+        console.log("\nShutting down EchoSpace...");
+        process.exit(0);
+      };
+      process.on("SIGINT", shutdown);
+      process.on("SIGTERM", shutdown);
+    },
+  );
 
 program
   .command("init")
