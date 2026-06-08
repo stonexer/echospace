@@ -199,6 +199,7 @@ export function App() {
       onSelect={handleFileSelect}
       onCreate={createFile}
       onDelete={deleteFile}
+      onRefresh={loadFiles}
       isLoading={isLoading}
     />
   );

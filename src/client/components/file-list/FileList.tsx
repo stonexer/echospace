@@ -8,6 +8,7 @@ interface FileListProps {
   onSelect: (path: string) => void;
   onCreate: (filename: string) => Promise<void>;
   onDelete: (filename: string) => Promise<void>;
+  onRefresh: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -17,6 +18,7 @@ export function FileList({
   onSelect,
   onCreate,
   onDelete,
+  onRefresh,
   isLoading,
 }: FileListProps) {
   const [isCreating, setIsCreating] = useState(false);
@@ -57,15 +59,38 @@ export function FileList({
             Explorer
           </span>
         </div>
-        <button
-          onClick={() => setIsCreating(true)}
-          className="flex size-5 items-center justify-center rounded text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
-          title="New file"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => onRefresh()}
+            disabled={isLoading}
+            className="flex size-5 items-center justify-center rounded text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary disabled:opacity-40"
+            title="Refresh file list"
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={isLoading ? "animate-spin" : undefined}
+            >
+              <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" />
+              <path d="M13.5 1.5V5H10" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setIsCreating(true)}
+            className="flex size-5 items-center justify-center rounded text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary"
+            title="New file"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* File list */}

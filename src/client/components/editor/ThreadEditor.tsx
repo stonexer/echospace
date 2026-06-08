@@ -25,6 +25,7 @@ export function ThreadEditor() {
   const runCompletion = useStore(store, (s) => s.runCompletion);
   const stopCompletion = useStore(store, (s) => s.stopCompletion);
   const saveFile = useStore(store, (s) => s.saveFile);
+  const loadFile = useStore(store, (s) => s.loadFile);
   const peekEvent = useStore(store, (s) => s.peekEvent);
   const restoreFromPeek = useStore(store, (s) => s.restoreFromPeek);
   const revertToEvent = useStore(store, (s) => s.revertToEvent);
@@ -76,6 +77,24 @@ export function ThreadEditor() {
   const handleToggleHighlight = useCallback(() => {
     if (currentEventId) toggleHighlight(currentEventId);
   }, [currentEventId, toggleHighlight]);
+
+  const handleReload = useCallback(async () => {
+    if (!filePath) return;
+    if (
+      isDirty &&
+      !window.confirm(
+        'This session has unsaved changes. Reloading from disk will discard them. Continue?',
+      )
+    ) {
+      return;
+    }
+    try {
+      await loadFile(filePath);
+      toast.success('Session reloaded from disk');
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  }, [filePath, isDirty, loadFile]);
 
   const currentEventHighlighted = useMemo(
     () => historyEvents.find((e) => e.id === currentEventId)?.highlighted,
@@ -133,6 +152,26 @@ export function ThreadEditor() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={handleReload}
+            disabled={isStreaming}
+            title="Reload session from disk"
+            className="flex h-7 items-center justify-center rounded px-2 text-text-desc transition-colors hover:bg-bg-4 hover:text-text-secondary disabled:opacity-30"
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" />
+              <path d="M13.5 1.5V5H10" />
+            </svg>
+          </button>
           {currentEventId && (
             <button
               onClick={handleToggleHighlight}
