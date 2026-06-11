@@ -540,11 +540,11 @@ export const MessageEditor = memo(function MessageEditor({
             return (
               <div key={i} className="mb-1 rounded border border-border bg-bg-2 px-2.5 py-1.5">
                 <div className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#7a5a96" strokeWidth="1.1" strokeLinecap="round">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--role-system-text)" strokeWidth="1.1" strokeLinecap="round">
                     <rect x="1" y="1" width="10" height="10" rx="1.5" />
                     <path d="M4 6l1.5 1.5L8 5" />
                   </svg>
-                  <span className="font-mono text-[11px] font-medium text-[#7a5a96]">
+                  <span className="font-mono text-[11px] font-medium text-[var(--role-system-text)]">
                     {tc.name}
                   </span>
                   <div className="flex-1" />
@@ -566,10 +566,10 @@ export const MessageEditor = memo(function MessageEditor({
                 {inlineResult && (
                   <div className="mt-1.5 border-t border-border/60 pt-1.5">
                     <div className="mb-1 flex items-center gap-1">
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#9a7030" strokeWidth="1" strokeLinecap="round">
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--role-tool-text)" strokeWidth="1" strokeLinecap="round">
                         <path d="M1 5h3l1-2 2 4 1-2h2" />
                       </svg>
-                      <span className="text-[10px] font-medium text-[#9a7030]">Result</span>
+                      <span className="text-[10px] font-medium text-[var(--role-tool-text)]">Result</span>
                     </div>
                     {!isReadonly ? (
                       <textarea
