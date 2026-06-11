@@ -41,12 +41,27 @@ export interface ImagePart {
   media_type?: string;
 }
 
+/**
+ * Marks where an agent summarized older turns away to free context. Carried on a
+ * `system`-role message; rendered as a full-width boundary divider, not a card.
+ */
+export interface CompactionPart {
+  type: "compaction";
+  /** The summary text that replaced the folded turns. */
+  summary: string;
+  /** How many messages were collapsed into the summary. */
+  dropped_messages?: number;
+  /** Estimated context tokens just before compaction. */
+  tokens_before?: number;
+}
+
 export type EchoPart =
   | TextPart
   | ThinkingPart
   | ToolCallPart
   | ToolResultPart
-  | ImagePart;
+  | ImagePart
+  | CompactionPart;
 
 // ---------------------------------------------------------------------------
 // Tool definitions

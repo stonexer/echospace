@@ -1,9 +1,9 @@
-import { useMemo, useCallback, memo } from "react";
+import { useMemo, useCallback, useState, memo } from "react";
 import { useStore } from "zustand";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { useThreadStore } from "../../lib/store-context";
 import { MessageEditor, isHiddenToolMessage } from "./MessageEditor";
-import type { EchoMessage } from "~/core/echo/types";
+import type { CompactionPart, EchoMessage } from "~/core/echo/types";
 
 interface MessageListProps {
   messages: EchoMessage[];
@@ -52,6 +52,7 @@ export function MessageList({
       originalIndex: number;
       cumulativeTokens: number;
       toolResultMessages: Map<string, { msg: EchoMessage; partIndex: number }> | null;
+      compaction: CompactionPart | undefined;
       isHidden: boolean;
     }[] = [];
 
@@ -73,6 +74,7 @@ export function MessageList({
           originalIndex: i,
           cumulativeTokens: runningTokens,
           toolResultMessages: computeToolResultMessages(msg, messages, i),
+          compaction: msg.parts.find((p) => p.type === "compaction"),
           isHidden: hidden,
         });
       }
@@ -116,12 +118,12 @@ export function MessageList({
               ref={provided.innerRef}
               {...provided.droppableProps}
             >
-              {precomputed.map(({ msg, originalIndex, cumulativeTokens, toolResultMessages }, visibleIndex) => (
+              {precomputed.map(({ msg, originalIndex, cumulativeTokens, toolResultMessages, compaction }, visibleIndex) => (
                 <Draggable
                   key={msg.id}
                   draggableId={msg.id}
                   index={visibleIndex}
-                  isDragDisabled={isDragDisabled}
+                  isDragDisabled={isDragDisabled || !!compaction}
                 >
                   {(draggableProvided, snapshot) => (
                     <div
@@ -133,22 +135,28 @@ export function MessageList({
                         ...(snapshot.isDropAnimating ? { transitionDuration: '0.001s' } : {}),
                       }}
                     >
-                      {/* Insertion line before each message */}
-                      {!isReadonly && !isStreaming && (
-                        <MemoInsertionLine
-                          messageId={msg.id}
-                          insertMessageBefore={insertMessageBefore}
-                        />
+                      {compaction ? (
+                        <CompactionDivider part={compaction} />
+                      ) : (
+                        <>
+                          {/* Insertion line before each message */}
+                          {!isReadonly && !isStreaming && (
+                            <MemoInsertionLine
+                              messageId={msg.id}
+                              insertMessageBefore={insertMessageBefore}
+                            />
+                          )}
+                          <MessageEditor
+                            message={msg}
+                            index={originalIndex}
+                            cumulativeTokens={cumulativeTokens}
+                            toolResultMessages={toolResultMessages}
+                            isReadonly={isReadonly || isStreaming}
+                            isStreaming={isStreaming && msg.id === streamingMessageId}
+                            dragHandleProps={draggableProvided.dragHandleProps}
+                          />
+                        </>
                       )}
-                      <MessageEditor
-                        message={msg}
-                        index={originalIndex}
-                        cumulativeTokens={cumulativeTokens}
-                        toolResultMessages={toolResultMessages}
-                        isReadonly={isReadonly || isStreaming}
-                        isStreaming={isStreaming && msg.id === streamingMessageId}
-                        dragHandleProps={draggableProvided.dragHandleProps}
-                      />
                     </div>
                   )}
                 </Draggable>
@@ -174,6 +182,71 @@ export function MessageList({
     </div>
   );
 }
+
+/* --- Compaction boundary divider --- */
+
+const CompactionDivider = memo(function CompactionDivider({
+  part,
+}: {
+  part: CompactionPart;
+}) {
+  const [open, setOpen] = useState(false);
+  const hasSummary = !!part.summary;
+  const dropped = part.dropped_messages;
+  const tokens = part.tokens_before;
+  const stats = [
+    dropped != null ? `folded ${dropped} msg${dropped === 1 ? "" : "s"}` : null,
+    tokens != null ? `~${Math.round(tokens / 1000)}k tokens` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <div className="my-1 select-none">
+      {/* Label band: dashed rules either side of a centered pill */}
+      <button
+        onClick={() => hasSummary && setOpen((o) => !o)}
+        className="flex w-full items-center gap-2"
+        title={hasSummary ? (open ? "Hide summary" : "Show summary") : undefined}
+      >
+        <div className="h-px flex-1 border-t border-dashed border-[#b4731a]/40" />
+        <div className="flex items-center gap-1.5 rounded-full border border-[#b4731a]/40 bg-[#b4731a]/10 px-2.5 py-[3px] text-[11px] font-medium text-[#b4731a] transition-colors hover:bg-[#b4731a]/15">
+          {/* Compress / merge-inward icon */}
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 2l2.5 2.5M2 4.5V2h2.5" />
+            <path d="M10 2L7.5 4.5M10 4.5V2H7.5" />
+            <path d="M2 10l2.5-2.5M2 7.5V10h2.5" />
+            <path d="M10 10L7.5 7.5M10 7.5V10H7.5" />
+          </svg>
+          <span>Context compacted</span>
+          {stats && <span className="font-mono text-[10px] opacity-70">{stats}</span>}
+          {hasSummary && (
+            <svg
+              width="10" height="10" viewBox="0 0 12 12" fill="none"
+              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+              className={`transition-transform ${open ? "rotate-180" : ""}`}
+            >
+              <path d="M3 4.5l3 3 3-3" />
+            </svg>
+          )}
+        </div>
+        <div className="h-px flex-1 border-t border-dashed border-[#b4731a]/40" />
+      </button>
+
+      {/* Expandable summary */}
+      {open && hasSummary && (
+        <div className="mt-2 rounded border border-[#b4731a]/30 bg-bg-2 px-3 py-2">
+          <div className="mb-1 font-mono text-[10px] tracking-wide text-[#b4731a] uppercase">
+            Summary
+          </div>
+          <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-[16px] text-text-desc">
+            {part.summary}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+});
 
 /* --- Insertion line between messages --- */
 

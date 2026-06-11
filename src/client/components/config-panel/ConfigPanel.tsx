@@ -36,14 +36,15 @@ export function ConfigPanel({ systemMessage, isReadonly }: ConfigPanelProps) {
       .catch(() => {});
   }, []);
 
-  // Auto-select provider/model whenever providers are available but none is set
+  // Auto-select provider/model only when the conversation has none recorded.
+  // A provider/model loaded from the file must survive open/save round-trips
+  // even when it's not in this instance's registry — .echo files written by
+  // other tools (e.g. c0) record what actually ran, and overriding them here
+  // silently corrupts those records on save.
   useEffect(() => {
     if (providers.length === 0) return;
 
-    if (
-      !settings.provider ||
-      !providers.find((p) => p.name === settings.provider)
-    ) {
+    if (!settings.provider) {
       const first = providers[0]!;
       updateSettings({ provider: first.name, model: first.models[0] ?? '' });
     } else if (!settings.model) {
